@@ -113,8 +113,8 @@ int main()
 		}
 		else if (status == GLFW_RELEASE)
 		{
-			//plane.Render(simpleShader);
-			//doom.Render(skeletalAnimationShader);
+			plane.Render(simpleShader);
+			doom.Render(skeletalAnimationShader);
 			
 
 			spline.DrawCurve(curveShader);

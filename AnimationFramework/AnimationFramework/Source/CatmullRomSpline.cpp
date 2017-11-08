@@ -7,6 +7,25 @@ CatMullRomSpline::CatMullRomSpline()
 	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(0);
+
+	_controlPoints.push_back(v0);
+	_controlPoints.push_back(v1);
+	_controlPoints.push_back(v2);
+	_controlPoints.push_back(v3);
+	_controlPoints.push_back(v4);
+	_controlPoints.push_back(v5);
+	_controlPoints.push_back(v6);
+	_controlPoints.push_back(v7);
+	_controlPoints.push_back(v8);
+	_controlPoints.push_back(v9);
+	_controlPoints.push_back(v10);
+	_controlPoints.push_back(v11);
+	_controlPoints.push_back(v12);
+	_controlPoints.push_back(v13);
+	_controlPoints.push_back(v14);
+
+
+
 }
 
 CatMullRomSpline::~CatMullRomSpline()
@@ -17,11 +36,14 @@ CatMullRomSpline::~CatMullRomSpline()
 void CatMullRomSpline::DesignCurve()
 {
 	Vector3f vec;
-	int counter = 0;
-	for (float i = 0.0f; i <= 1.0f; i += step)
-	{
-		Vector3f point = CatMullRom(&vec, &v0, &v1, &v2, &v3, i);
-		interpolatedPoints[counter++] = point;
+	
+	for(int j=0; j<_controlPoints.size()-3 ; j++)
+	{ 
+		for (float i = 0.0f; i <= 1.0f; i += step)
+		{
+			Vector3f point = CatMullRom(&vec, &_controlPoints[j], &_controlPoints[j + 1], &_controlPoints[j + 2], &_controlPoints[j + 3], i);
+			_interpolatedPoints.push_back(point);
+		}
 	}
 }
 Vector3f CatMullRomSpline::CatMullRom(Vector3f *pout, Vector3f *pv0, Vector3f *pv1, Vector3f *pv2, Vector3f *pv3, float s)
@@ -36,7 +58,7 @@ void CatMullRomSpline::DrawCurve(Shader& shader)
 	shader.use();
 	glBindVertexArray(VAO);
 	glPointSize(2.5f);
-	glDrawArrays(GL_POINTS, 0, 150);
+	glDrawArrays(GL_POINTS, 0,_interpolatedPoints.size());
 	glBindVertexArray(0);
 }
 
@@ -60,7 +82,7 @@ void CatMullRomSpline::FillBuffers()
 	
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3f) * 150, &interpolatedPoints[0], GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3f) * _interpolatedPoints.size(), &_interpolatedPoints[0], GL_DYNAMIC_DRAW);
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,3 * sizeof(float), (void*)0);
 	
