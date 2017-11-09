@@ -41,7 +41,7 @@ int main()
 	glEnable(GL_DEBUG_OUTPUT);
 
 	//Shaders
-	Shader skeletalAnimationShader("Source//Shaders//skeletalAnimation.vert", "Source//Shaders//skeletalAnimation.frag");		//Shader for skinned mesh
+	Shader skeletalAnimationShader("Source/Shaders/skeletalAnimation.vert", "Source/Shaders/skeletalAnimation.frag");		//Shader for skinned mesh
 	Shader pointShader("Source//Shaders//skeleton.vert", "Source//Shaders//skeleton.frag");										//Shader for bones
 	Shader simpleShader("Source//Shaders//simpleShader.vert", "Source//Shaders//simpleShader.frag");							//Shader for plane
 	Shader curveShader("Source//Shaders//curve.vert", "Source//Shaders//curve.frag");
@@ -53,10 +53,9 @@ int main()
 
 	CatMullRomSpline spline;						//Curve
 	spline.DesignCurve();							//Design the curve
-	PrintControlPoints(spline);						//Print on Console
-	spline.FillBuffers();
+	spline.FillBuffers();							//Fill the buffers with control points
 
-	doom.LoadMesh("Resources//Tiny//tiny_4anim.x");		
+	doom.LoadMesh("Resources/Tiny/tiny_4anim.x");		
 	doom.SendBonesLocationToShader(skeletalAnimationShader);
 
 	
@@ -162,8 +161,8 @@ void mouse_callback_debug(GLFWwindow * window, double xpos, double ypos)
 
 void PrintControlPoints(CatMullRomSpline& spline)
 {
-	/*for (int i = 0; i < spline.interpolatedPoints.size(); i++)
+	for (int i = 0; i < spline._interpolatedPoints.size(); i++)
 	{
-		std::cout << spline.interpolatedPoints[i].x <<" "<< spline.interpolatedPoints[i].y<<" "<< spline.interpolatedPoints[i].z<< std::endl;
-	}*/
+		std::cout << spline._interpolatedPoints[i].x <<" "<< spline._interpolatedPoints[i].y<<" "<< spline._interpolatedPoints[i].z<< std::endl;
+	}
 }
