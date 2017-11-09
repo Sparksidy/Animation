@@ -51,9 +51,14 @@ int main()
 	SkinnedMesh doom;								//Model
 	Skeleton skeleton;								//Skeleton
 
+	//Curve
 	CatMullRomSpline spline;						//Curve
 	spline.DesignCurve();							//Design the curve
 	spline.FillBuffers();							//Fill the buffers with control points
+	spline.DesignTable();							//Forward Differencing Table
+	spline.PrintTable();
+
+
 
 	doom.LoadMesh("Resources/Tiny/tiny_4anim.x");		
 	doom.SendBonesLocationToShader(skeletalAnimationShader);

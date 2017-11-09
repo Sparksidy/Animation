@@ -2,8 +2,7 @@
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(40): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  main.cpp
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(100): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(160): warning C4018: '<': signed/unsigned mismatch
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

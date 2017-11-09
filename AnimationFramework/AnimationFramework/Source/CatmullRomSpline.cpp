@@ -43,8 +43,70 @@ void CatMullRomSpline::DesignCurve()
 		{
 			Vector3f point = CatMullRom(&vec, &_controlPoints[j], &_controlPoints[j + 1], &_controlPoints[j + 2], &_controlPoints[j + 3], i);
 			_interpolatedPoints.push_back(point);
+
+			//Store the point with respect to the step value on the curve
+			VectorsStepMap v;
+			v.parameter = i;
+			v.point = point;
+			_Map.push_back(v);
 		}
 	}
+
+}
+void CatMullRomSpline::DesignTable()
+{
+	int counter = 0;
+	for (float i = 0; i <= 1.0f; i += step)
+	{
+		TableEntry t;
+		t.ParametricValue = i;
+		
+		//Calculate the arc Length
+		if (i == 0.0f)
+		{
+			
+			//Initial Arc Length
+			t.ArcLength = 0;
+			counter++;
+		}
+		else
+		{
+			//Get the points on the curve with the step value, P(0) & P(0.05)
+			Vector3f point1 = _Map[counter].point;
+			Vector3f point2 = _Map[counter - 1].point;
+
+
+			//Calculate the distance between Pi and Pi-1;
+			float distance = abs(sqrt(pow(point1.x - point2.x, 2) + pow(point1.y - point2.y, 2) + pow(point1.z - point2.z, 2)));
+
+			//Get the last entry of the vector
+			TableEntry back = _Table.back();
+
+			
+			//Distance between Pi and Pi-1 plus the previous length
+			t.ArcLength = back.ArcLength + distance;
+
+		}
+
+		//Store it in the table
+		_Table.push_back(t);
+		counter++;
+
+	}
+
+	float maxLength = _Table.back().ArcLength;
+
+	//Normalize the table's Arc Length
+	for (int i = 0; i < _Table.size(); i++)
+	{
+		if (_Table[i].ArcLength != 0.0f)
+		{
+			_Table[i].ArcLength = _Table[i].ArcLength / maxLength;
+		}
+	}
+
+	
+
 }
 Vector3f CatMullRomSpline::CatMullRom(Vector3f *pout, Vector3f *pv0, Vector3f *pv1, Vector3f *pv2, Vector3f *pv3, float s)
 {
@@ -82,14 +144,21 @@ void CatMullRomSpline::FillBuffers()
 	
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vector3f) * _interpolatedPoints.size(), &_interpolatedPoints[0], GL_DYNAMIC_DRAW);
-	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,3 * sizeof(float), (void*)0);
-	
 	glEnableVertexAttribArray(0);
 	
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindVertexArray(0);
 	
 
+}
+
+void CatMullRomSpline::PrintTable()
+{
+	for (int i = 0; i < _Table.size(); i++)
+	{
+		std::cout << "Parameter: " << _Table[i].ParametricValue << " Arc Length " << _Table[i].ArcLength << std::endl;
+	}
 }
