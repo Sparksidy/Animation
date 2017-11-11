@@ -3,6 +3,11 @@ c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animatio
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(40): warning C4018: '<': signed/unsigned mismatch
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(100): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(160): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(158): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(187): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(209): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(214): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\catmullromspline.cpp(229): warning C4018: '<': signed/unsigned mismatch
+cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

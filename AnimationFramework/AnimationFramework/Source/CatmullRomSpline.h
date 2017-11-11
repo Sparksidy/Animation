@@ -4,12 +4,16 @@
 #include "Globals.h"
 #include "math_3d.h"
 #include "Shader.h"
+#include "SkinnedMesh.h"
+
+
 
 class CatMullRomSpline{
 
 	GLuint VAO, VBO;
 
 	float step = 0.005f;
+	const float speed =1.1f;
 	
 	Vector3f v0 = { 10.0, 0.0, 40.0 };
 	Vector3f v1 = { 30.0, 0.0, 20.0 };
@@ -42,6 +46,8 @@ class CatMullRomSpline{
 		Vector3f point;
 	};
 	std::vector<VectorsStepMap> _Map;
+
+	
 	
 	public:
 
@@ -60,5 +66,12 @@ class CatMullRomSpline{
 		void UpdateMVP(Shader& shader);
 		void FillBuffers();
 
+		//Calculates the point on the curve with the distance travelled
+		void Update(float dt, SkinnedMesh& model);
+
+		float GetParameterFromArcLength(float distance);
+		float BinarySearch(int l, int r, float x);
+
+	
 		void PrintTable();
 };

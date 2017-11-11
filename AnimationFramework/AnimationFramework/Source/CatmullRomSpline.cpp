@@ -13,16 +13,16 @@ CatMullRomSpline::CatMullRomSpline()
 	_controlPoints.push_back(v2);
 	_controlPoints.push_back(v3);
 	_controlPoints.push_back(v4);
-	_controlPoints.push_back(v5);
-	_controlPoints.push_back(v6);
-	_controlPoints.push_back(v7);
-	_controlPoints.push_back(v8);
-	_controlPoints.push_back(v9);
-	_controlPoints.push_back(v10);
-	_controlPoints.push_back(v11);
-	_controlPoints.push_back(v12);
-	_controlPoints.push_back(v13);
-	_controlPoints.push_back(v14);
+	//_controlPoints.push_back(v5);
+	//_controlPoints.push_back(v6);
+	//_controlPoints.push_back(v7);
+	//_controlPoints.push_back(v8);
+	//_controlPoints.push_back(v9);
+	//_controlPoints.push_back(v10);
+	//_controlPoints.push_back(v11);
+	//_controlPoints.push_back(v12);
+	//_controlPoints.push_back(v13);
+	//_controlPoints.push_back(v14);
 
 
 
@@ -37,7 +37,7 @@ void CatMullRomSpline::DesignCurve()
 {
 	Vector3f vec;
 	
-	for(int j=0; j<_controlPoints.size()-3 ; j++)
+	for(int j = 0; j<_controlPoints.size()- 3 ; j++)
 	{ 
 		for (float i = 0.0f; i <= 1.0f; i += step)
 		{
@@ -55,7 +55,7 @@ void CatMullRomSpline::DesignCurve()
 }
 void CatMullRomSpline::DesignTable()
 {
-	int counter = 0;
+	int index = 0;
 	for (float i = 0; i <= 1.0f; i += step)
 	{
 		TableEntry t;
@@ -67,13 +67,13 @@ void CatMullRomSpline::DesignTable()
 			
 			//Initial Arc Length
 			t.ArcLength = 0;
-			counter++;
+			index++;
 		}
 		else
 		{
-			//Get the points on the curve with the step value, P(0) & P(0.05)
-			Vector3f point1 = _Map[counter].point;
-			Vector3f point2 = _Map[counter - 1].point;
+			//Get the points on the curve with the step value, say P(0) & P(0.05)
+			Vector3f point1 = _Map[index].point;
+			Vector3f point2 = _Map[index - 1].point;
 
 
 			//Calculate the distance between Pi and Pi-1;
@@ -90,7 +90,7 @@ void CatMullRomSpline::DesignTable()
 
 		//Store it in the table
 		_Table.push_back(t);
-		counter++;
+		index++;
 
 	}
 
@@ -123,9 +123,6 @@ void CatMullRomSpline::DrawCurve(Shader& shader)
 	glDrawArrays(GL_POINTS, 0,_interpolatedPoints.size());
 	glBindVertexArray(0);
 }
-
-
-
 void CatMullRomSpline::UpdateMVP(Shader& shader)
 {
 	glm::mat4 model, projection, view;
@@ -138,7 +135,6 @@ void CatMullRomSpline::UpdateMVP(Shader& shader)
 	shader.setMat4("projection", projection);
 	shader.setMat4("view", view);
 }
-
 void CatMullRomSpline::FillBuffers()
 {
 	
@@ -154,6 +150,79 @@ void CatMullRomSpline::FillBuffers()
 	
 
 }
+
+void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
+{
+	Vector3f vec;
+	
+	for (int j = 0; j < _controlPoints.size() - 3; j++)
+	{
+		//Calculate distance
+		float distance = abs(speed * RunningTime);
+
+		//Binary Search the ArcLengthTable to get u
+		float u = GetParameterFromArcLength(distance);
+
+		//Parameter not found
+		if (u == -1.0f)
+			return;
+
+		//Calculate point from u (know at which segment of the curve we are at)
+		Vector3f point = CatMullRom(&vec, &_controlPoints[j], &_controlPoints[j + 1], &_controlPoints[j + 2], &_controlPoints[j + 3], u);
+
+		//Change the model's position to this point
+		model.SetModelsPosition(point);
+		
+	}
+
+
+}
+
+float CatMullRomSpline::GetParameterFromArcLength(float distance)
+{
+	int l = 0;
+	int r = _Table.size() - 1;
+
+	//Linear Searching
+	for (int i = 0; i < _Table.size()-1; i++)
+	{
+		if ((_Table[i].ArcLength < distance) && (_Table[i + 1].ArcLength > distance))
+		{
+			return _Table[i].ParametricValue;
+		}
+	}
+
+	return -1.0f;
+
+	//return BinarySearch(l, r, distance);
+
+}
+
+float CatMullRomSpline::BinarySearch(int l, int r, float arclength)
+{
+	if (r >= 1)
+	{
+		int mid = l + (r - 1) / 2;
+
+		if (_Table[mid].ArcLength == arclength)
+		{
+			return mid;
+		}
+
+		//Find the index less than or equal to the arc length
+		if ((_Table[mid].ArcLength < arclength) && (_Table[mid + 1].ArcLength > arclength))
+			return mid;
+
+		if (_Table[mid].ArcLength > arclength)
+			return BinarySearch(l, mid - 1, arclength);
+
+		return BinarySearch(mid + 1, r, arclength);
+
+	}
+
+	return -1;
+}
+
 
 void CatMullRomSpline::PrintTable()
 {

@@ -106,8 +106,9 @@ int main()
 		doom.UpdateBoneTransforms(Transforms, BonePosition, RunningTime);
 
 	
-		spline.UpdateMVP(curveShader);		//Fill the buffer
+		spline.UpdateMVP(curveShader);
 
+		
 
 		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
 		if (status == GLFW_PRESS)
@@ -117,6 +118,7 @@ int main()
 		}
 		else if (status == GLFW_RELEASE)
 		{
+			spline.Update(RunningTime, doom);
 			plane.Render(simpleShader);
 			doom.Render(skeletalAnimationShader);
 			

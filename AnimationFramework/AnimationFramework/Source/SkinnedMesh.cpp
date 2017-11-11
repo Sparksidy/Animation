@@ -68,7 +68,7 @@ GLint SkinnedMesh::GetUniformLocation(const char* pUniformName, GLuint shader)
 void SkinnedMesh::SetMVP(Shader& shader)
 {
 	glm::mat4 model, view, projection;
-	model = glm::translate(model, glm::vec3(0.0f, 1.0f, -10.0f)); // translate it down so it's at the center of the scene
+	model = glm::translate(model, modelsPosition); // translate it down so it's at the center of the scene
 	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
@@ -361,8 +361,6 @@ void SkinnedMesh::Render(Shader& shader)
 			(void*)(sizeof(uint) * m_Entries[i].BaseIndex),
 			m_Entries[i].BaseVertex);
 	}
-
-
 
 	glBindVertexArray(0);
 

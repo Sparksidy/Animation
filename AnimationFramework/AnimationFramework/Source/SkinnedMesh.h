@@ -51,7 +51,13 @@ public:
 	void SetMVP( Shader& shader);
 	void UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime);
 
+	glm::vec3 modelsPosition;// = { 0.0f, 1.0f, -10.0f };
+	void SetModelsPosition(Vector3f v) {
+		modelsPosition.x = v.x;
+		modelsPosition.y = v.y;
+		modelsPosition.z = v.z;
 
+	}
 private:
 	GLuint m_boneLocation[MAX_BONES];
 	
