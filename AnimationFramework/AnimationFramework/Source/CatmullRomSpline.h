@@ -13,7 +13,7 @@ class CatMullRomSpline{
 	GLuint VAO, VBO;
 
 	float step = 0.005f;
-	const float speed =1.1f;
+	const float speed =0.5f;
 	
 	Vector3f v0 = { 10.0, 0.0, 40.0 };
 	Vector3f v1 = { 30.0, 0.0, 20.0 };

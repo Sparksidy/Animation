@@ -56,7 +56,7 @@ int main()
 	spline.DesignCurve();							//Design the curve
 	spline.FillBuffers();							//Fill the buffers with control points
 	spline.DesignTable();							//Forward Differencing Table
-	spline.PrintTable();
+	//spline.PrintTable();
 
 
 

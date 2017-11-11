@@ -8,21 +8,34 @@ CatMullRomSpline::CatMullRomSpline()
 	glGenBuffers(1, &VBO);
 	glBindVertexArray(0);
 
-	_controlPoints.push_back(v0);
-	_controlPoints.push_back(v1);
-	_controlPoints.push_back(v2);
-	_controlPoints.push_back(v3);
-	_controlPoints.push_back(v4);
-	//_controlPoints.push_back(v5);
-	//_controlPoints.push_back(v6);
-	//_controlPoints.push_back(v7);
-	//_controlPoints.push_back(v8);
-	//_controlPoints.push_back(v9);
-	//_controlPoints.push_back(v10);
-	//_controlPoints.push_back(v11);
-	//_controlPoints.push_back(v12);
-	//_controlPoints.push_back(v13);
+
+
+
 	//_controlPoints.push_back(v14);
+	//_controlPoints.push_back(v13);
+	//_controlPoints.push_back(v12);
+	//_controlPoints.push_back(v11);
+	//_controlPoints.push_back(v10);
+	//_controlPoints.push_back(v9);
+	//_controlPoints.push_back(v8);
+	//_controlPoints.push_back(v7);
+	//_controlPoints.push_back(v6);
+	//_controlPoints.push_back(v5);
+	_controlPoints.push_back(v4);
+	_controlPoints.push_back(v3);
+	_controlPoints.push_back(v2);
+	_controlPoints.push_back(v1);
+	_controlPoints.push_back(v0);
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
+	//
 
 
 
@@ -56,6 +69,8 @@ void CatMullRomSpline::DesignCurve()
 void CatMullRomSpline::DesignTable()
 {
 	int index = 0;
+
+	
 	for (float i = 0; i <= 1.0f; i += step)
 	{
 		TableEntry t;
@@ -93,7 +108,7 @@ void CatMullRomSpline::DesignTable()
 		index++;
 
 	}
-
+	
 	float maxLength = _Table.back().ArcLength;
 
 	//Normalize the table's Arc Length
@@ -155,26 +170,27 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
 {
 	Vector3f vec;
 	
-	for (int j = 0; j < _controlPoints.size() - 3; j++)
+	for (int j = 0 ; j <_controlPoints.size() - 3; j++)
 	{
+		
 		//Calculate distance
 		float distance = abs(speed * RunningTime);
 
 		//Binary Search the ArcLengthTable to get u
 		float u = GetParameterFromArcLength(distance);
-
+		
 		//Parameter not found
 		if (u == -1.0f)
 			return;
 
 		//Calculate point from u (know at which segment of the curve we are at)
 		Vector3f point = CatMullRom(&vec, &_controlPoints[j], &_controlPoints[j + 1], &_controlPoints[j + 2], &_controlPoints[j + 3], u);
-
+		
 		//Change the model's position to this point
 		model.SetModelsPosition(point);
 		
 	}
-
+	//std::cout << endl;
 
 }
 
