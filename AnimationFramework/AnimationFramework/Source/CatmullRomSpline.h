@@ -12,8 +12,10 @@ class CatMullRomSpline{
 
 	GLuint VAO, VBO;
 
-	float step = 0.005f;
-	const float speed =0.5f;
+	float maxArcLength;
+	float maxParametricValue;
+	float step			=		0.005f;
+	const float speed	=		0.5f;
 	
 	Vector3f v0 = { 10.0, 0.0, 40.0 };
 	Vector3f v1 = { 30.0, 0.0, 20.0 };
@@ -31,8 +33,7 @@ class CatMullRomSpline{
 	Vector3f v13 = { 40.0, 0.0, -10.0 };
 	Vector3f v14 = { 30.0, 0.0, -20.0 };
 
-
-
+	
 	//Forward Differencing Table
 	struct TableEntry {
 		float ParametricValue;
@@ -41,11 +42,12 @@ class CatMullRomSpline{
 	std::vector<TableEntry> _Table;
 
 	//To know at what step value we have which Point on the curve
-	struct VectorsStepMap {
-		float parameter;
-		Vector3f point;
-	};
-	std::vector<VectorsStepMap> _Map;
+	//struct CurveSegmentPointTable {
+	//	float parameter;
+	//	Vector3f point;
+	//	int index;			//Starting point/Determines the segment of the curve we are on
+	//};
+	//std::vector<CurveSegmentPointTable> _Map;
 
 	
 	
