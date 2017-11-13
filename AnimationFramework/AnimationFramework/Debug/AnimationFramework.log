@@ -1,15 +1,9 @@
-﻿  CatmullRomSpline.cpp
+﻿  SkinnedMesh.cpp
 c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
 c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(57): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(71): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(113): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(213): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(236): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(241): warning C4244: 'return': conversion from 'int' to 'float', possible loss of data
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\catmullromspline.cpp(256): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  main.cpp
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(182): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(459): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(462): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
   AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)
