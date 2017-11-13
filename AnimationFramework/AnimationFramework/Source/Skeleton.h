@@ -6,7 +6,7 @@ class Skeleton
 {
 public:
 	Skeleton();
-	void UpdateSkeletonBuffers(Shader& shader, vector<Matrix4f>& BonePosition);
+	void UpdateSkeletonBuffers(Shader& shader, vector<Matrix4f>& BonePosition, SkinnedMesh& model);
 	void DrawSkeleton(Shader& shader);
 	GLuint GetVAO() { return VAO; }
 

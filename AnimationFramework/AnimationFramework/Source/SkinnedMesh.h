@@ -44,20 +44,31 @@ public:
 		return m_NumBones;
 	}
 
-	void BoneTransform(float timeInSeconds, vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition);
+	void BoneTransform(float timeInSeconds, vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float a);
 	GLint GetUniformLocation(const char* pUniformName, GLuint shader );
 	void SetBoneTransform(int index, const Matrix4f& Transform);
 	void SendBonesLocationToShader(const Shader& shader);
 	void SetMVP( Shader& shader);
-	void UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime);
+	void UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime, float a);
 
-	glm::vec3 modelsPosition;// = { 0.30f, 0.1f, 20.0f };
+	
+	glm::vec3 modelsPosition;
+	glm::vec3 GetModelsPosition() { return modelsPosition; }
 	void SetModelsPosition(Vector3f v) {
 		modelsPosition.x = v.x;
 		modelsPosition.y = v.y;
 		modelsPosition.z = v.z;
 
 	}
+
+	glm::vec3 COI;
+	void SetCOI(Vector3f coi) { 
+		COI.x = coi.x;
+		COI.y = coi.y;
+		COI.z = coi.z;
+	}
+	glm::vec3 GetCOI() { return COI; }
+
 private:
 	GLuint m_boneLocation[MAX_BONES];
 	
