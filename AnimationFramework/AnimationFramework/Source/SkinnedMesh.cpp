@@ -67,11 +67,26 @@ GLint SkinnedMesh::GetUniformLocation(const char* pUniformName, GLuint shader)
 }
 void SkinnedMesh::SetMVP(Shader& shader)
 {
+	glm::vec3 COI = { 0,0,0 };
+	glm::vec3 W = COI - modelsPosition;
+	glm::vec3 U = glm::cross(W, glm::vec3(0, 1, 0));
+	glm::vec3 V = glm::cross(U, W);
+
+	glm::mat4 orientation;
+	orientation[0][0] = U.x;	orientation[0][1] = U.y;	orientation[0][2] = U.z;	orientation[0][3] = 0;
+	orientation[1][0] = V.x;	orientation[1][1] = V.y;	orientation[1][2] = V.z;	orientation[1][3] = 0;
+	orientation[2][0] = W.y;	orientation[2][1] = W.x;	orientation[2][2] = W.z;	orientation[2][3] = 0;
+	orientation[3][0] = 0;		orientation[3][1] = 0;		orientation[3][2] = 0;		orientation[3][3] = 1;
+
+	
 	glm::mat4 model, view, projection;
 	model = glm::translate(model, modelsPosition); // translate it down so it's at the center of the scene
+	//model = orientation;
 	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
+	
+	
 
 	model = glm::scale(model, glm::vec3(0.06f, 0.06f, 0.06f));	// it's a bit too big for our scene, so scale it down
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);

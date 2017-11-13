@@ -41,6 +41,7 @@ CatMullRomSpline::CatMullRomSpline()
 	_controlPoints.push_back(v13);
 	_controlPoints.push_back(v14);*/
 
+	velocity = 0.0f;
 
 }
 
@@ -59,13 +60,6 @@ void CatMullRomSpline::DesignCurve()
 		{
 			Vector3f point = CatMullRom(&vec, &_controlPoints[j], &_controlPoints[j + 1], &_controlPoints[j + 2], &_controlPoints[j + 3], i);
 			_interpolatedPoints.push_back(point);
-
-			//Store the point with respect to the step value on the curve segment
-			//CurveSegmentPointTable v;
-			//v.parameter = i;
-			//v.point = point;
-			//v.index = j + 1; //In catmull the curve p1,p2,p3,p4 is from p2 and p3. Thus we save "second" index in this case
-			//_Map.push_back(v);
 		}
 	}
 
@@ -73,21 +67,20 @@ void CatMullRomSpline::DesignCurve()
 void CatMullRomSpline::DesignTable()
 {
 	int index = 0;
-	float parametricIncrement = -1.0f; //So that all the parametric values can be normalized in the end
-
+	
 	for (int j = 0; j < _controlPoints.size() - 3; j++)
 	{
-		parametricIncrement++;
-		for (float i = 0; i <= 1.0f; i += step) //Will normalize the parameters in the end
+		for (float i = 0; i <= 1.0f; i += step) 
 		{
 			TableEntry t;
-			t.ParametricValue = i + parametricIncrement;
+			t.ParametricValue = i;
 
 			//Calculate the arc Length
 			if (j == 0 && index == 0)
 			{
 				//Initial Arc Length
 				t.ArcLength = 0;
+				t.index = j;
 				index++;
 			}
 			else
@@ -102,7 +95,7 @@ void CatMullRomSpline::DesignTable()
 
 				//Distance between Pi and Pi-1 plus the previous length
 				t.ArcLength = _Table.back().ArcLength + distance;
-
+				t.index = j;
 			}
 
 			//Store it in the table
@@ -115,18 +108,12 @@ void CatMullRomSpline::DesignTable()
 	maxArcLength = _Table.back().ArcLength;
 	maxParametricValue = _Table.back().ParametricValue;
 
-	//std::cout << "Max Arc Length: " << maxLength << "maxParamaeter" << maxParametricValue << std::endl;
-
 
 	//Normalize the table's Arc Length and parameters
 	for (int i = 0; i < _Table.size(); i++)
 	{
-		//if (_Table[i].ArcLength != 0.0f)
-		//{
-			_Table[i].ArcLength = _Table[i].ArcLength / maxArcLength;
-			_Table[i].ParametricValue = _Table[i].ParametricValue / maxParametricValue;
-			//std::cout << _Table[i].ArcLength << " " << _Table[i].ParametricValue << std::endl;
-		//}
+		_Table[i].ArcLength = _Table[i].ArcLength / maxArcLength;
+		_Table[i].ParametricValue = _Table[i].ParametricValue / maxParametricValue;
 	}
 
 }
@@ -175,41 +162,49 @@ void CatMullRomSpline::FillBuffers()
 
 void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
 {
-	Vector3f vec;
-	
-	for (int j = 0 ; j <_controlPoints.size() - 3; j++)
-	{
+		Vector3f vec;
+		int index;
+		float u;
+		float distance;
 		
-		//Calculate distance
-		float distance = abs(speed * RunningTime);
+		//Ease in/Ease Out
 
-		//distance = distance / maxArcLength;
-		std::cout << "Distance " << distance << std::endl;
-		//Binary Search the ArcLengthTable to get u
-		float u = GetParameterFromArcLength(distance);
-		
-		//u = u * maxParametricValue;
-		std::cout <<"U: "<<u << std::endl;
+		float t = RunningTime / 30; //normalizing
+
+		std::cout << "Time: " << t << std::endl;
+
+		if(t > 0.0f && t < t1)
+		{
+			velocity = speed *  (t / t1);
+		}
+		else if (t > t1 && t < t2)
+		{
+			velocity = speed;
+		}
+		else if (t > t2 && t < 1.0f)
+		{
+			velocity = speed * (1 - ((t - t2) / (1 - t2)));
+		}
+
+		//Calculate distance
+		distance = abs(velocity * RunningTime);
+
+		//Get the parameter
+		u = GetParameterFromArcLength(distance, index);
 
 		//Parameter not found
 		if (u == -1.0f)
-		{
-		
 			return;
-		}
-
+		
 		//Calculate point from u (know at which segment of the curve we are at)
-		Vector3f point = CatMullRom(&vec, &_controlPoints[j], &_controlPoints[j + 1], &_controlPoints[j + 2], &_controlPoints[j + 3], u);
+		CatMullRom(&vec, &_controlPoints[index], &_controlPoints[index + 1], &_controlPoints[index + 2], &_controlPoints[index + 3], u);
 		
 		//Change the model's position to this point
-		model.SetModelsPosition(point);
+		model.SetModelsPosition(vec);
 		
-	}
-	//std::cout << endl;
-
 }
 
-float CatMullRomSpline::GetParameterFromArcLength(float distance)
+float CatMullRomSpline::GetParameterFromArcLength(float distance, int& index)
 {
 	int l = 0;
 	int r = _Table.size() - 1;
@@ -219,7 +214,7 @@ float CatMullRomSpline::GetParameterFromArcLength(float distance)
 	{
 		if ((_Table[i].ArcLength < distance) && (_Table[i + 1].ArcLength > distance))
 		{
-
+			index = _Table[i].index;
 			return _Table[i].ParametricValue;
 		}
 	}

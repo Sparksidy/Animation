@@ -14,8 +14,11 @@ class CatMullRomSpline{
 
 	float maxArcLength;
 	float maxParametricValue;
-	float step			=		0.005f;
-	const float speed	=		0.5f;
+	float step			 =		0.005f;
+	float speed			 =		0.05f;
+	float velocity		 =		2.0f;
+	const float t1		 =		0.30f;
+	const float t2		 =		0.70f;
 	
 	Vector3f v0 = { 10.0, 0.0, 40.0 };
 	Vector3f v1 = { 30.0, 0.0, 20.0 };
@@ -38,6 +41,7 @@ class CatMullRomSpline{
 	struct TableEntry {
 		float ParametricValue;
 		float ArcLength;
+		int index;
 	};
 	std::vector<TableEntry> _Table;
 
@@ -71,7 +75,7 @@ class CatMullRomSpline{
 		//Calculates the point on the curve with the distance travelled
 		void Update(float dt, SkinnedMesh& model);
 
-		float GetParameterFromArcLength(float distance);
+		float GetParameterFromArcLength(float distance, int& index);
 		float BinarySearch(int l, int r, float x);
 
 	
