@@ -15,10 +15,12 @@ class CatMullRomSpline{
 	float maxArcLength;
 	float maxParametricValue;
 	float step			 =		0.005f;
-	float speed			 =		0.05f;
+	float speed			 =		10.0f;
 	float velocity		 =		2.0f;
-	const float t1		 =		0.30f;
+	const float t1		 =		0.10f;
 	const float t2		 =		0.70f;
+
+
 	
 	Vector3f v0 = { 10.0, 0.0, 40.0 };
 	Vector3f v1 = { 30.0, 0.0, 20.0 };
@@ -56,6 +58,8 @@ class CatMullRomSpline{
 	
 	
 	public:
+		float GetVelocity() { return velocity; }
+		float GetSpeed() { return speed; }
 
 		std::vector<Vector3f> _interpolatedPoints;
 		std::vector<Vector3f> _controlPoints;
@@ -73,7 +77,7 @@ class CatMullRomSpline{
 		void FillBuffers();
 
 		//Calculates the point on the curve with the distance travelled
-		void Update(float dt, SkinnedMesh& model);
+		void Update(float dt, SkinnedMesh& model, float deltaTime);
 
 		float GetParameterFromArcLength(float distance, int& index);
 		float BinarySearch(int l, int r, float x);

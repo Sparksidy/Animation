@@ -160,7 +160,7 @@ void CatMullRomSpline::FillBuffers()
 
 }
 
-void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
+void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model, float deltaTime)
 {
 		Vector3f vec;
 		int index;
@@ -168,12 +168,17 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
 		float distance;
 		
 		//Ease in/Ease Out
+		float totalTime = maxArcLength / speed;
 
-		float t = RunningTime / 30; //normalizing
+		RunningTime = max(RunningTime, 0.0f);
+		float t =  RunningTime/ totalTime; //normalizing
 
-		std::cout << "Time: " << t << std::endl;
+		t = t - floor(t);
 
-		if(t > 0.0f && t < t1)
+	
+		//std::cout << "Time: " << t << std::endl;
+
+		if(t >= 0.0f && t < t1)
 		{
 			velocity = speed *  (t / t1);
 		}
@@ -185,12 +190,31 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
 		{
 			velocity = speed * (1 - ((t - t2) / (1 - t2)));
 		}
+		std::cout << "T: " << t << "Vel: " << velocity << std::endl;
+
+
+		//velocity = speed;
+		static float dist = 0.0f;
+		if (dist > maxArcLength)
+			dist = dist - maxArcLength;
+
 
 		//Calculate distance
-		distance = abs(velocity * RunningTime);
+		distance = dist + velocity * deltaTime;
+		dist = distance;
+
+		
+
+		std::cout << "Dist" << distance << std::endl;
+
+
+	
+		//distance = abs(velocity * RunningTime);
 
 		//Get the parameter
-		u = GetParameterFromArcLength(distance, index);
+		u = GetParameterFromArcLength(distance/maxArcLength, index);
+
+		std::cout << "U: " << u << std::endl;
 
 		//Parameter not found
 		if (u == -1.0f)
@@ -201,6 +225,11 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model)
 		
 		//Change the model's position to this point
 		model.SetModelsPosition(vec);
+
+		Vector3f coi;
+		CatMullRom(&coi, &_controlPoints[index], &_controlPoints[index + 1], &_controlPoints[index + 2], &_controlPoints[index + 3], u+step);
+
+		model.SetCOI(coi);
 		
 }
 
@@ -249,8 +278,6 @@ float CatMullRomSpline::BinarySearch(int l, int r, float arclength)
 
 	return -1;
 }
-
-
 void CatMullRomSpline::PrintTable()
 {
 	for (int i = 0; i < _Table.size(); i++)

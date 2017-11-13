@@ -67,7 +67,7 @@ GLint SkinnedMesh::GetUniformLocation(const char* pUniformName, GLuint shader)
 }
 void SkinnedMesh::SetMVP(Shader& shader)
 {
-	glm::vec3 COI = { 0,0,0 };
+	//glm::vec3 COI = { 0,0,0 };
 	glm::vec3 W = glm::normalize(COI - modelsPosition);
 	glm::vec3 U = glm::cross(W, glm::vec3(0, 1, 0));
 	glm::vec3 V = glm::cross(U, W);
@@ -101,9 +101,9 @@ void SkinnedMesh::SetMVP(Shader& shader)
 
 }
 
-void SkinnedMesh::UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime)
+void SkinnedMesh::UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime, float a)
 {
-	BoneTransform(RunningTime, Transforms, BonePosition);
+	BoneTransform(RunningTime, Transforms, BonePosition, a);
 
 	for (uint i = 0; i < Transforms.size(); i++) {
 		SetBoneTransform(i, Transforms[i]);
@@ -450,13 +450,13 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, c
 
 }
 float t = 0;
-void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition)
+void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition,float a)
 {
 	Matrix4f Identity;
 	Identity.InitIdentity();
 	
 	//Calculate the animation time
-	float TicksPerSecond = m_Scene->mAnimations[1]->mTicksPerSecond > 0 ? m_Scene->mAnimations[1]->mTicksPerSecond  : 200.0f;
+	float TicksPerSecond = m_Scene->mAnimations[1]->mTicksPerSecond > 0 ? m_Scene->mAnimations[1]->mTicksPerSecond  : 200.0f * a ;
 	t += 0.16f * TicksPerSecond;
 	//float TimeInTicks = timeInSeconds * TicksPerSecond;
 	t = fmod(t, m_Scene->mAnimations[1]->mDuration);

@@ -78,7 +78,7 @@ int main()
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		float RunningTime = (float)((double)GetTickCount() - (double)startTime) / 1000.0f;
+		float RunningTime = (float)((double)GetTickCount() - (double)startTime)/ 1000.0f;
 
 		
 		cb.processInput(GET_WINDOW(window));
@@ -101,7 +101,8 @@ int main()
 		vector<Matrix4f> Transforms;
 		vector<Matrix4f> BonePosition;
 		doom.SetMVP(skeletalAnimationShader);
-		doom.UpdateBoneTransforms(Transforms, BonePosition, RunningTime);
+		float a = spline.GetVelocity() / spline.GetSpeed();
+		doom.UpdateBoneTransforms(Transforms, BonePosition, RunningTime, a);
 
 	
 		spline.UpdateMVP(curveShader);
@@ -111,16 +112,19 @@ int main()
 		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
 		if (status == GLFW_PRESS)
 		{
-			skeleton.UpdateSkeletonBuffers(pointShader, BonePosition);
+			spline.Update(RunningTime, doom,deltaTime);
+			plane.Render(simpleShader);
+			skeleton.UpdateSkeletonBuffers(pointShader, BonePosition, doom);
 			skeleton.DrawSkeleton(pointShader);
+			spline.DrawCurve(curveShader);
 		}
 		else if (status == GLFW_RELEASE)
 		{
-			spline.Update(RunningTime, doom);
+			spline.Update(RunningTime, doom, deltaTime);
 			plane.Render(simpleShader);
 			doom.Render(skeletalAnimationShader);
 			
-
+			
 			spline.DrawCurve(curveShader);
 		}
 	/*	int debugStatus = glfwGetKey(GET_WINDOW(window), GLFW_KEY_Q);
