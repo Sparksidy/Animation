@@ -175,9 +175,6 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model, float delta
 
 		t = t - floor(t);
 
-	
-		//std::cout << "Time: " << t << std::endl;
-
 		if(t >= 0.0f && t < t1)
 		{
 			velocity = speed *  (t / t1);
@@ -190,8 +187,7 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model, float delta
 		{
 			velocity = speed * (1 - ((t - t2) / (1 - t2)));
 		}
-		std::cout << "T: " << t << "Vel: " << velocity << std::endl;
-
+		
 
 		//velocity = speed;
 		static float dist = 0.0f;
@@ -204,17 +200,8 @@ void CatMullRomSpline::Update(float RunningTime, SkinnedMesh& model, float delta
 		dist = distance;
 
 		
-
-		std::cout << "Dist" << distance << std::endl;
-
-
-	
-		//distance = abs(velocity * RunningTime);
-
 		//Get the parameter
 		u = GetParameterFromArcLength(distance/maxArcLength, index);
-
-		std::cout << "U: " << u << std::endl;
 
 		//Parameter not found
 		if (u == -1.0f)

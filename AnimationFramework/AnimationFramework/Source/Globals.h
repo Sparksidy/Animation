@@ -6,16 +6,15 @@
 #include <glm/glm/glm.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
-
 #include <unordered_map>
 
 //#include "Skeleton.h"
 
 // settings
 extern const unsigned int SCR_WIDTH;
-extern const unsigned int SCR_HEIGHT ;
+extern const unsigned int SCR_HEIGHT;
 
-// camera
+// Camera
 extern Camera camera;
 extern float lastX;
 extern float lastY ;
@@ -36,6 +35,5 @@ extern float lastFrame ;
 
 
 //MACROS
-
 #define GET_WINDOW(window)\
 window.GetWindow()

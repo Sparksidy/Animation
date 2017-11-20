@@ -1,16 +1,16 @@
 ﻿  main.cpp
 c:\program files (x86)\windows kits\8.1\include\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
-  c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\include\glfw3.h(98): note: see previous definition of 'APIENTRY'
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(73): warning C4244: 'initializing': conversion from 'DWORD' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(78): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(157): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(158): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(162): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(163): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(165): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(166): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\main.cpp(173): warning C4018: '<': signed/unsigned mismatch
-  AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
-  AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)
+  c:\users\siddharth\desktop\cs560\animationframework\animationframework\include\glfw3.h(98): note: see previous definition of 'APIENTRY'
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(73): warning C4244: 'initializing': conversion from 'DWORD' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(78): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(152): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(153): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(157): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(158): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(160): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(161): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(168): warning C4018: '<': signed/unsigned mismatch
+  AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
+  AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

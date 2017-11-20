@@ -27,7 +27,10 @@ void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	camera.ProcessMouseMovement(xoffset, yoffset);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	{
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	}
 }
 
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
@@ -49,14 +52,11 @@ void Callbacks::processInput(GLFWwindow * window)
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 
-	
-
 }
 
 Callbacks::Callbacks()
 {
 	glfwSetFramebufferSizeCallback(GET_WINDOW(window),framebuffer_size_callback);
-	
 	glfwSetCursorPosCallback(GET_WINDOW(window), mouse_callback);
 	glfwSetScrollCallback(GET_WINDOW(window),scroll_callback);
 	glfwSetInputMode(GET_WINDOW(window), GLFW_CURSOR, GLFW_CURSOR_DISABLED);

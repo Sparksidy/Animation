@@ -104,10 +104,7 @@ int main()
 		float a = spline.GetVelocity() / spline.GetSpeed();
 		doom.UpdateBoneTransforms(Transforms, BonePosition, RunningTime, a);
 
-	
 		spline.UpdateMVP(curveShader);
-
-		
 
 		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
 		if (status == GLFW_PRESS)
@@ -123,8 +120,6 @@ int main()
 			spline.Update(RunningTime, doom, deltaTime);
 			plane.Render(simpleShader);
 			doom.Render(skeletalAnimationShader);
-			
-			
 			spline.DrawCurve(curveShader);
 		}
 	/*	int debugStatus = glfwGetKey(GET_WINDOW(window), GLFW_KEY_Q);

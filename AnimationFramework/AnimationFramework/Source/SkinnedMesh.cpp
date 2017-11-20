@@ -83,7 +83,8 @@ void SkinnedMesh::SetMVP(Shader& shader)
 	//model = glm::translate(model, modelsPosition); // translate it down so it's at the center of the scene
 	//model = glm::translate(model, modelsPosition) * orientation * glm::translate(model, -modelsPosition);
 												   
-	model = orientation;											   //model = orientation;
+	model = orientation;
+	//model = glm::translate(model, modelsPosition);
 	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));

@@ -52,7 +52,7 @@ public:
 	void UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime, float a);
 
 	
-	glm::vec3 modelsPosition;
+	glm::vec3 modelsPosition = {0,0,0};
 	glm::vec3 GetModelsPosition() { return modelsPosition; }
 	void SetModelsPosition(Vector3f v) {
 		modelsPosition.x = v.x;
