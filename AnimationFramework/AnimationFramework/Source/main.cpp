@@ -13,6 +13,7 @@
 //IMGUI
 #include "Imgui/imgui.h"
 #include "Imgui/imgui_impl_glfw_gl3.h"
+#include "Imgui/ImGuizmo.h"
 
 //MY CLASSES
 #include "Shader.h"
@@ -74,6 +75,8 @@ int main()
 	while (!glfwWindowShouldClose(GET_WINDOW(window)))
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
+		
+		
 
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -122,7 +125,8 @@ int main()
 			doom.Render(skeletalAnimationShader);
 			spline.DrawCurve(curveShader);
 		}
-	/*	int debugStatus = glfwGetKey(GET_WINDOW(window), GLFW_KEY_Q);
+
+		int debugStatus = glfwGetKey(GET_WINDOW(window), GLFW_KEY_Q);
 		if (debugStatus == GLFW_PRESS)
 		{
 			ImGui::Render();
@@ -133,7 +137,7 @@ int main()
 		{
 			glfwSetCursorPosCallback(GET_WINDOW(window), mouse_callback_debug);
 		
-		}*/
+		}
 
 		glfwSwapBuffers(GET_WINDOW(window));
 		glfwPollEvents();

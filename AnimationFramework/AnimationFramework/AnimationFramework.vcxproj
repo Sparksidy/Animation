@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\Imgui\imgui.cpp" />
+    <ClCompile Include="Include\Imgui\ImGuizmo.cpp" />
     <ClCompile Include="Include\Imgui\imgui_demo.cpp" />
     <ClCompile Include="Include\Imgui\imgui_draw.cpp" />
     <ClCompile Include="Include\Imgui\imgui_impl_glfw_gl3.cpp" />
@@ -34,6 +35,7 @@
     <ClCompile Include="Source\Textures.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Imgui\ImGuizmo.h" />
     <ClInclude Include="Source\CatmullRomSpline.h" />
     <ClInclude Include="Source\Skeleton.h" />
     <ClInclude Include="Source\Callbacks.h" />
