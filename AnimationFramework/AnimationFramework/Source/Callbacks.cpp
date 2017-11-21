@@ -27,6 +27,15 @@ void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
+	if (ImGuizmo::IsOver())
+	{
+		if (ImGuizmo::IsUsing())
+		{
+			
+		}
+	}
+
+
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
 		camera.ProcessMouseMovement(xoffset, yoffset);

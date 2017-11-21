@@ -8,6 +8,13 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <unordered_map>
 
+//IMGUI
+#include "Imgui/imgui.h"
+#include "Imgui/imgui_impl_glfw_gl3.h"
+#include "Imgui/ImGuizmo.h"
+
+#include <iostream>
+
 //#include "Skeleton.h"
 
 // settings

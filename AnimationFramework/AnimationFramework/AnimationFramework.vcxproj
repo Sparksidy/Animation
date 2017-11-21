@@ -33,6 +33,7 @@
     <ClCompile Include="Source\SkinnedMesh.cpp" />
     <ClCompile Include="Source\stb_image.cpp" />
     <ClCompile Include="Source\Textures.cpp" />
+    <ClCompile Include="Source\TransformEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Imgui\ImGuizmo.h" />
@@ -48,6 +49,7 @@
     <ClInclude Include="Source\Shader.h" />
     <ClInclude Include="Source\SkinnedMesh.h" />
     <ClInclude Include="Source\Textures.h" />
+    <ClInclude Include="Source\TransformEditor.h" />
     <ClInclude Include="Source\types.h" />
     <ClInclude Include="Source\util.h" />
     <ClInclude Include="Source\vector3.h" />

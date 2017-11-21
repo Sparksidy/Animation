@@ -68,23 +68,25 @@ GLint SkinnedMesh::GetUniformLocation(const char* pUniformName, GLuint shader)
 void SkinnedMesh::SetMVP(Shader& shader)
 {
 	//glm::vec3 COI = { 0,0,0 };
-	glm::vec3 W = glm::normalize(COI - modelsPosition);
-	glm::vec3 U = glm::cross(W, glm::vec3(0, 1, 0));
-	glm::vec3 V = glm::cross(U, W);
+	//glm::vec3 W = glm::normalize(COI - modelsPosition);
+	//glm::vec3 U = glm::cross(W, glm::vec3(0, 1, 0));
+	//glm::vec3 V = glm::cross(U, W);
 
-	glm::mat4 orientation;
-	orientation[0][0] = U.x;	orientation[0][1] = U.y;	orientation[0][2] = U.z;	orientation[0][3] = 0;
-	orientation[1][0] = V.x;	orientation[1][1] = V.y;	orientation[1][2] = V.z;	orientation[1][3] = 0;
-	orientation[2][0] = W.x;	orientation[2][1] = W.y;	orientation[2][2] = W.z;	orientation[2][3] = 0;
-	orientation[3][0] = modelsPosition.x;		orientation[3][1] = modelsPosition.y;		orientation[3][2] = modelsPosition.z;		orientation[3][3] = 1;
+	//glm::mat4 orientation;
+	//orientation[0][0] = U.x;	orientation[0][1] = U.y;	orientation[0][2] = U.z;	orientation[0][3] = 0;
+	//orientation[1][0] = V.x;	orientation[1][1] = V.y;	orientation[1][2] = V.z;	orientation[1][3] = 0;
+	//orientation[2][0] = W.x;	orientation[2][1] = W.y;	orientation[2][2] = W.z;	orientation[2][3] = 0;
+	//orientation[3][0] = modelsPosition.x;		orientation[3][1] = modelsPosition.y;		orientation[3][2] = modelsPosition.z;		orientation[3][3] = 1;
 
-	
+	//
+	//glm::mat4 model, view, projection;
+	////model = glm::translate(model, modelsPosition); // translate it down so it's at the center of the scene
+	////model = glm::translate(model, modelsPosition) * orientation * glm::translate(model, -modelsPosition);
+	//											   
+	//model = orientation;
+
 	glm::mat4 model, view, projection;
-	//model = glm::translate(model, modelsPosition); // translate it down so it's at the center of the scene
-	//model = glm::translate(model, modelsPosition) * orientation * glm::translate(model, -modelsPosition);
-												   
-	model = orientation;
-	//model = glm::translate(model, modelsPosition);
+	model = glm::translate(model, modelsPosition);
 	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
@@ -402,7 +404,7 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, c
 {
 	string Nodename(pNode->mName.data);
 
-	const aiAnimation* pAnim = m_Scene->mAnimations[1];
+	const aiAnimation* pAnim = m_Scene->mAnimations[0];
 	
 	Matrix4f NodeTransformation(pNode->mTransformation);
 
@@ -457,10 +459,10 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	Identity.InitIdentity();
 	
 	//Calculate the animation time
-	float TicksPerSecond = m_Scene->mAnimations[1]->mTicksPerSecond > 0 ? m_Scene->mAnimations[1]->mTicksPerSecond  : 200.0f * a ;
+	float TicksPerSecond = m_Scene->mAnimations[0]->mTicksPerSecond > 0 ? m_Scene->mAnimations[0]->mTicksPerSecond  : 200.0f * a ;
 	t += 0.16f * TicksPerSecond;
 	//float TimeInTicks = timeInSeconds * TicksPerSecond;
-	t = fmod(t, m_Scene->mAnimations[1]->mDuration);
+	t = fmod(t, m_Scene->mAnimations[0]->mDuration);
 	
 	//Traverse the node hierarchy and update the final bone transformation according to the animation time
 	ReadNodeHierarchy(t, m_Scene->mRootNode, Identity);

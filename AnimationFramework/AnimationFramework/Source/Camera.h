@@ -22,6 +22,7 @@ const float PITCH = 0.0f;
 const float SPEED = 25.0f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 60.0f;
+const float FOV = 45.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
@@ -66,6 +67,12 @@ public:
 	{
 		return glm::lookAt(Position, Position + Front, Up);
 	}
+
+	glm::mat4 GetprojectionMatrix(float width, float height)
+	{
+		return glm::perspective(FOV, width / height, 0.1f, 1000.0f);
+	}
+
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime)
