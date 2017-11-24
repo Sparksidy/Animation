@@ -10,6 +10,10 @@ public:
 	void DrawSkeleton(Shader& shader);
 	GLuint GetVAO() { return VAO; }
 
+	glm::vec4* GetJointPostions()const;
+
 private:
+	//Actual joint positions
+	glm::vec4* jointPosition;
 	GLuint VAO, VBO;
 };

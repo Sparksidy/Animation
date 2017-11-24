@@ -7,13 +7,9 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 #include "freeglut.h"
-#include <iostream>
 #include <Windows.h>
 
-//IMGUI
-#include "Imgui/imgui.h"
-#include "Imgui/imgui_impl_glfw_gl3.h"
-#include "Imgui/ImGuizmo.h"
+
 
 //MY CLASSES
 #include "Shader.h"
@@ -26,10 +22,11 @@
 #include "Callbacks.h"
 #include "Skeleton.h"
 #include "CatmullRomSpline.h"
+#include "TransformEditor.h"
 
 //FUNCTION PROTOTYPES
 void mouse_callback_debug(GLFWwindow* window, double xpos, double ypos);
-void PrintControlPoints(CatMullRomSpline& spline);
+
 
 
 int main()
@@ -57,27 +54,33 @@ int main()
 	spline.DesignCurve();							//Design the curve
 	spline.FillBuffers();							//Fill the buffers with control points
 	spline.DesignTable();							//Forward Differencing Table
-	//spline.PrintTable();
 
 
-
-	doom.LoadMesh("Resources/Tiny/tiny_4anim.x");		
+	doom.LoadMesh("Resources/Tiny/tiny_4anim.x");
 	doom.SendBonesLocationToShader(skeletalAnimationShader);
 
 	
+	//DEBUG
+	TransformEditor transformEditor;
+	glm::mat4 model;
+	
+	//DEBUG
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+	bool drawskeleton = false;
 
 	float startTime = GetTickCount();
 	while (!glfwWindowShouldClose(GET_WINDOW(window)))
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
-		
-		
+		ImGuizmo::BeginFrame();
 
+		
+		transformEditor.Update(model);
+		
+		
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -91,15 +94,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		
-
-		static float f = 0.0f;
-		ImGui::Text("Hello, world!");
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		ImGui::ColorEdit3("clear color", (float*)&clear_color);
-		if (ImGui::Button("Test Window")) show_test_window ^= 1;
-		if (ImGui::Button("Another Window")) show_another_window ^= 1;
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
 	
 		vector<Matrix4f> Transforms;
 		vector<Matrix4f> BonePosition;
@@ -110,35 +104,31 @@ int main()
 		spline.UpdateMVP(curveShader);
 
 		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
-		if (status == GLFW_PRESS)
+		if (drawskeleton)
 		{
-			spline.Update(RunningTime, doom,deltaTime);
+			//spline.Update(RunningTime, doom,deltaTime);
 			plane.Render(simpleShader);
 			skeleton.UpdateSkeletonBuffers(pointShader, BonePosition, doom);
 			skeleton.DrawSkeleton(pointShader);
-			spline.DrawCurve(curveShader);
+			//spline.DrawCurve(curveShader);
 		}
-		else if (status == GLFW_RELEASE)
+		else
 		{
-			spline.Update(RunningTime, doom, deltaTime);
+			//spline.Update(RunningTime, doom, deltaTime);
+			Vector3f vec = { 0,0,0 };
+			doom.SetModelsPosition(vec);
 			plane.Render(simpleShader);
 			doom.Render(skeletalAnimationShader);
-			spline.DrawCurve(curveShader);
+			//spline.DrawCurve(curveShader);
 		}
-
-		int debugStatus = glfwGetKey(GET_WINDOW(window), GLFW_KEY_Q);
-		if (debugStatus == GLFW_PRESS)
-		{
-			ImGui::Render();
-			glfwSetCursorPosCallback(GET_WINDOW(window), NULL);
-
-		}
-		else if (debugStatus == GLFW_RELEASE)
-		{
-			glfwSetCursorPosCallback(GET_WINDOW(window), mouse_callback_debug);
 		
-		}
 
+		ImGui::Checkbox("DrawSkeleton", &drawskeleton);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+		
+		ImGui::Render();
+		
 		glfwSwapBuffers(GET_WINDOW(window));
 		glfwPollEvents();
 	}
@@ -147,7 +137,6 @@ int main()
 	glfwTerminate();
 	return 0;
 }
-
 
 void mouse_callback_debug(GLFWwindow * window, double xpos, double ypos)
 {
@@ -167,10 +156,3 @@ void mouse_callback_debug(GLFWwindow * window, double xpos, double ypos)
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void PrintControlPoints(CatMullRomSpline& spline)
-{
-	for (int i = 0; i < spline._interpolatedPoints.size(); i++)
-	{
-		std::cout << spline._interpolatedPoints[i].x <<" "<< spline._interpolatedPoints[i].y<<" "<< spline._interpolatedPoints[i].z<< std::endl;
-	}
-}

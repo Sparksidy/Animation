@@ -17,23 +17,23 @@ void Skeleton::UpdateSkeletonBuffers(Shader& shader, vector<Matrix4f>& BonePosit
 {
 	//Calculate the MVP of the bones
 	int num_Bones = BonePosition.size();
-	glm::vec4* jointPosition = new glm::vec4[num_Bones];
+	jointPosition = new glm::vec4[num_Bones];
 	std::vector<Vector4f> BonePositionsMeshSpace;
 	glm::mat4 model, projection, view;
 
-	glm::vec3 W = glm::normalize(doom.GetCOI() - doom.GetModelsPosition());
-	glm::vec3 U = glm::cross(W, glm::vec3(0, 1, 0));
-	glm::vec3 V = glm::cross(U, W);
+	//glm::vec3 W = glm::normalize(doom.GetCOI() - doom.GetModelsPosition());
+	//glm::vec3 U = glm::cross(W, glm::vec3(0, 1, 0));
+	//glm::vec3 V = glm::cross(U, W);
 
-	glm::mat4 orientation;
-	orientation[0][0] = U.x;	orientation[0][1] = U.y;	orientation[0][2] = U.z;	orientation[0][3] = 0;
-	orientation[1][0] = V.x;	orientation[1][1] = V.y;	orientation[1][2] = V.z;	orientation[1][3] = 0;
-	orientation[2][0] = W.x;	orientation[2][1] = W.y;	orientation[2][2] = W.z;	orientation[2][3] = 0;
-	orientation[3][0] = doom.GetModelsPosition().x;		orientation[3][1] = doom.GetModelsPosition().y;		orientation[3][2] = doom.GetModelsPosition().z;		orientation[3][3] = 1;
+	//glm::mat4 orientation;
+	//orientation[0][0] = U.x;	orientation[0][1] = U.y;	orientation[0][2] = U.z;	orientation[0][3] = 0;
+	//orientation[1][0] = V.x;	orientation[1][1] = V.y;	orientation[1][2] = V.z;	orientation[1][3] = 0;
+	//orientation[2][0] = W.x;	orientation[2][1] = W.y;	orientation[2][2] = W.z;	orientation[2][3] = 0;
+	//orientation[3][0] = doom.GetModelsPosition().x;		orientation[3][1] = doom.GetModelsPosition().y;		orientation[3][2] = doom.GetModelsPosition().z;		orientation[3][3] = 1;
 
 
-	//model = glm::translate(model,doom.GetModelsPosition());
-	model = orientation;
+	model = glm::translate(model,doom.GetModelsPosition());
+	//model = orientation;
 	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
@@ -78,4 +78,9 @@ void Skeleton::DrawSkeleton(Shader& shader)
 	glPointSize(10.0f);
 	glDrawArrays(GL_POINTS, 0, 32);
 	glBindVertexArray(0);
+}
+
+glm::vec4 * Skeleton::GetJointPostions() const
+{
+	return jointPosition;
 }
