@@ -23,6 +23,12 @@ void TransformEditor::Update(glm::mat4 & matrix)
 	if (ImGui::RadioButton("Scale", _currentOperation == ImGuizmo::SCALE))
 		_currentOperation = ImGuizmo::SCALE;
 
+
+	glm::mat4 const& view_matrix = camera.GetViewMatrix();
+	glm::mat4 const& projection_matrix = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+	glm::mat4 modelMatrix = matrix;
+
+	
 	float translation[3];
 	float rotation[3];
 	float scale[3];
@@ -30,17 +36,14 @@ void TransformEditor::Update(glm::mat4 & matrix)
 	ImGui::InputFloat3("Tr", translation, 3);
 	ImGui::InputFloat3("Rt", rotation, 3);
 	ImGui::InputFloat3("Sc", scale, 3);
-	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, &matrix[0][0]);
 
-	glm::mat4 modelMatrix = matrix;
-	glm::mat4 const& view_matrix = camera.GetViewMatrix();
-	//glm::mat4 const& projection_matrix = camera.GetprojectionMatrix(SCR_WIDTH, SCR_HEIGHT);
-	glm::mat4 const& projection_matrix = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, &matrix[0][0]);
 
 	ImGuiIO & io = ImGui::GetIO();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
 	ImGuizmo::Manipulate(&view_matrix[0][0], &projection_matrix[0][0], _currentOperation, _currentMode, &modelMatrix[0][0]);
 
+	
 }
 
 void TransformEditor::Reset()

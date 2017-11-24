@@ -1,8 +1,15 @@
-﻿  SkinnedMesh.cpp
+﻿  main.cpp
+c:\program files (x86)\windows kits\8.1\include\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
+  c:\users\siddharth\desktop\cs560\animationframework\animationframework\include\glfw3.h(98): note: see previous definition of 'APIENTRY'
 c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
 c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(185): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(462): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(465): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(74): warning C4244: 'initializing': conversion from 'DWORD' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(84): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(145): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(146): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(150): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(151): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(153): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\main.cpp(154): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

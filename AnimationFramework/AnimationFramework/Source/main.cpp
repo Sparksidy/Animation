@@ -56,16 +56,14 @@ int main()
 	spline.DesignTable();							//Forward Differencing Table
 
 
-	doom.LoadMesh("Resources/Tiny/tiny_4anim.x");		
+	doom.LoadMesh("Resources/Tiny/tiny_4anim.x");
 	doom.SendBonesLocationToShader(skeletalAnimationShader);
 
 	
 	//DEBUG
 	TransformEditor transformEditor;
-	glm::vec3 point = { 10,0,0 };
 	glm::mat4 model;
-	model = glm::translate(model, point);
-
+	
 	//DEBUG
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
@@ -96,8 +94,6 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		
-
-	
 	
 		vector<Matrix4f> Transforms;
 		vector<Matrix4f> BonePosition;
@@ -110,11 +106,11 @@ int main()
 		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
 		if (drawskeleton)
 		{
-			spline.Update(RunningTime, doom,deltaTime);
+			//spline.Update(RunningTime, doom,deltaTime);
 			plane.Render(simpleShader);
 			skeleton.UpdateSkeletonBuffers(pointShader, BonePosition, doom);
 			skeleton.DrawSkeleton(pointShader);
-			spline.DrawCurve(curveShader);
+			//spline.DrawCurve(curveShader);
 		}
 		else
 		{
@@ -133,7 +129,6 @@ int main()
 		
 		ImGui::Render();
 		
-
 		glfwSwapBuffers(GET_WINDOW(window));
 		glfwPollEvents();
 	}
