@@ -71,11 +71,11 @@ int main()
 	bool drawskeleton = false;
 
 	//IK
-	glm::vec3 targetPoint = { 0,10,10 };
+	glm::vec3 targetPoint = { 0,10,20 };
 	CyclicCoordinateDescend ccd;
 	
-
-
+	//IK
+	
 	float startTime = GetTickCount();
 	while (!glfwWindowShouldClose(GET_WINDOW(window)))
 	{
@@ -110,8 +110,8 @@ int main()
 
 		ccd.ComputeCCDLink(targetPoint, doom);
 
+	
 
-		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
 		if (drawskeleton)
 		{
 			//spline.Update(RunningTime, doom,deltaTime);
@@ -130,7 +130,6 @@ int main()
 			//spline.DrawCurve(curveShader);
 		}
 		
-
 		ImGui::Checkbox("DrawSkeleton", &drawskeleton);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
