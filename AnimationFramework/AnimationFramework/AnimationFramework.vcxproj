@@ -25,6 +25,7 @@
     <ClCompile Include="Include\Imgui\imgui_draw.cpp" />
     <ClCompile Include="Include\Imgui\imgui_impl_glfw_gl3.cpp" />
     <ClCompile Include="Source\CatmullRomSpline.cpp" />
+    <ClCompile Include="Source\CyclicCoordinateDescend.cpp" />
     <ClCompile Include="Source\Skeleton.cpp" />
     <ClCompile Include="Source\Callbacks.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
@@ -38,6 +39,7 @@
   <ItemGroup>
     <ClInclude Include="Include\Imgui\ImGuizmo.h" />
     <ClInclude Include="Source\CatmullRomSpline.h" />
+    <ClInclude Include="Source\CyclicCoordinateDescend.h" />
     <ClInclude Include="Source\Skeleton.h" />
     <ClInclude Include="Source\Callbacks.h" />
     <ClInclude Include="Source\Camera.h" />

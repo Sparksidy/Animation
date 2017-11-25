@@ -1,5 +1,4 @@
 #pragma once
-
 #include <glew.h>
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>			// Output data structure
@@ -79,6 +78,8 @@ private:
 		Matrix4f BoneOffset;
 		Matrix4f FinalTransformation;
 		Matrix4f BonePosition;
+		aiBone*	 Parent;
+		string	 BoneName;
 
 		BoneInfo()
 		{
@@ -132,7 +133,18 @@ private:
 	uint FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
 	uint FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
-	
+
+	//IK
+	public:
+		void CreateSubChain();
+		
+		string right_finger = "Bip01_R_Finger1";
+		std::vector<const aiNode*> ChainLink;
+		const aiNode* finger = nullptr;
+
+	//IK
+	private:
+
 
 #define INVALID_MATERIAL 0xFFFFFFFF
 
@@ -175,6 +187,8 @@ private:
 
 	const aiScene* m_Scene;
 	Assimp::Importer m_Importer;
+
+
 
 
 

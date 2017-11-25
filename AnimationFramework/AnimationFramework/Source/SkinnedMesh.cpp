@@ -111,6 +111,8 @@ void SkinnedMesh::UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matr
 	for (uint i = 0; i < Transforms.size(); i++) {
 		SetBoneTransform(i, Transforms[i]);
 	}
+
+	CreateSubChain();
 }
 
 
@@ -329,7 +331,10 @@ void SkinnedMesh::LoadBones(uint MeshIndex, const aiMesh* pMesh, vector<VertexBo
 		unsigned int BoneIndex = 0;
 		string BoneName(pMesh->mBones[i]->mName.data);
 
+		//Store the aiBone for right finger IK
 		
+			
+
 		//If new bone
 		if (m_BoneMapping.find(BoneName) == m_BoneMapping.end())
 		{
@@ -339,6 +344,8 @@ void SkinnedMesh::LoadBones(uint MeshIndex, const aiMesh* pMesh, vector<VertexBo
 			BoneInfo bi;
 			m_BoneInfo.push_back(bi);
 			m_BoneInfo[BoneIndex].BoneOffset = pMesh->mBones[i]->mOffsetMatrix;
+
+
 			m_BoneMapping[BoneName] = BoneIndex;
 
 		}
@@ -346,6 +353,7 @@ void SkinnedMesh::LoadBones(uint MeshIndex, const aiMesh* pMesh, vector<VertexBo
 		{
 			BoneIndex = m_BoneMapping[BoneName];
 		}
+
 
 		//Assigning weights
 		for (unsigned int j = 0; j < pMesh->mBones[i]->mNumWeights; j++)
@@ -355,6 +363,26 @@ void SkinnedMesh::LoadBones(uint MeshIndex, const aiMesh* pMesh, vector<VertexBo
 			Bones[VertexID].AddBoneData(BoneIndex, Weight);
 		}
 
+	}
+
+	
+	
+}
+
+void SkinnedMesh::CreateSubChain()
+{
+	if (finger)
+	{
+		while (finger != m_Scene->mRootNode)
+		{
+			//If node name is the same as the bone name
+			if (m_BoneMapping.find(finger->mName.data) != m_BoneMapping.end())
+			{
+				ChainLink.push_back(finger);
+			}
+			finger = finger->mParent;
+		}
+		ChainLink.push_back(m_Scene->mRootNode);
 	}
 
 }
@@ -402,7 +430,13 @@ const aiNodeAnim* SkinnedMesh::FindNodeAnim(const aiAnimation* pAnimation, const
 
 void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, const Matrix4f & ParentTransform)
 {
+
 	string Nodename(pNode->mName.data);
+
+	if (Nodename == right_finger)
+	{
+		finger = pNode;
+	}
 
 	const aiAnimation* pAnim = m_Scene->mAnimations[0];
 	
@@ -450,7 +484,7 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, c
 		ReadNodeHierarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 
-
+	
 }
 float t = 0;
 void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition,float a)
@@ -463,7 +497,7 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	t += 0.16f * TicksPerSecond;
 	//float TimeInTicks = timeInSeconds * TicksPerSecond;
 	t = fmod(t, m_Scene->mAnimations[0]->mDuration);
-	
+
 	//Traverse the node hierarchy and update the final bone transformation according to the animation time
 	ReadNodeHierarchy(t, m_Scene->mRootNode, Identity);
 
@@ -476,6 +510,7 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 		BonePosition[i] = m_BoneInfo[i].BonePosition;
 	}
 
+	
 }
 
 

@@ -23,6 +23,7 @@
 #include "Skeleton.h"
 #include "CatmullRomSpline.h"
 #include "TransformEditor.h"
+#include "CyclicCoordinateDescend.h"
 
 //FUNCTION PROTOTYPES
 void mouse_callback_debug(GLFWwindow* window, double xpos, double ypos);
@@ -60,16 +61,20 @@ int main()
 	doom.SendBonesLocationToShader(skeletalAnimationShader);
 
 	
+	
 	//DEBUG
 	TransformEditor transformEditor;
 	glm::mat4 model;
-	
-	//DEBUG
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
 	bool drawskeleton = false;
+
+	//IK
+	glm::vec3 targetPoint = { 0,10,10 };
+	CyclicCoordinateDescend ccd;
+	
+
 
 	float startTime = GetTickCount();
 	while (!glfwWindowShouldClose(GET_WINDOW(window)))
@@ -102,6 +107,9 @@ int main()
 		doom.UpdateBoneTransforms(Transforms, BonePosition, RunningTime, a);
 
 		spline.UpdateMVP(curveShader);
+
+		ccd.ComputeCCDLink(targetPoint, doom);
+
 
 		int status = glfwGetKey(GET_WINDOW(window), GLFW_KEY_C);
 		if (drawskeleton)
