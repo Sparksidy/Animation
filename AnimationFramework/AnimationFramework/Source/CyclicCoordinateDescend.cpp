@@ -124,8 +124,8 @@ bool CyclicCoordinateDescend::ComputeCCDLink(glm::vec3 target, SkinnedMesh& doom
 
 				//Concatenating with the parent transforms (FIXING THE HIERARCHY)
 				Matrix4f GlobalTransformation;
-				if(link != 0)
-					GlobalTransformation = (Matrix4f)doom.ChainLink[link-1]->mTransformation * NodeTransformation;
+				if(link != 0)				//Parent * Node
+					GlobalTransformation = (Matrix4f)doom.ChainLink[link - 1]->mTransformation * NodeTransformation;
 				
 				//Updating the bone transformations
 				if (doom.m_BoneMapping.find(doom.ChainLink[link]->mName.data) != doom.m_BoneMapping.end())

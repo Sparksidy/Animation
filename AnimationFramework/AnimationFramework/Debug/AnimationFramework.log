@@ -1,4 +1,9 @@
-﻿  CyclicCoordinateDescend.cpp
-c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\cycliccoordinatedescend.cpp(91): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+﻿  SkinnedMesh.cpp
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(189): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(498): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(501): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth\desktop\cs560\animationframework\animationframework\source\skinnedmesh.cpp(616): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\Siddharth\Desktop\CS560\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

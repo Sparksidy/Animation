@@ -104,13 +104,11 @@ int main()
 		vector<Matrix4f> BonePosition;
 		doom.SetMVP(skeletalAnimationShader);
 		float a = spline.GetVelocity() / spline.GetSpeed();
+
+		//RUNNING IK IN THIS 
 		doom.UpdateBoneTransforms(Transforms, BonePosition, RunningTime, a);
 
 		spline.UpdateMVP(curveShader);
-
-		ccd.ComputeCCDLink(targetPoint, doom);
-
-	
 
 		if (drawskeleton)
 		{
@@ -122,11 +120,14 @@ int main()
 		}
 		else
 		{
-			//spline.Update(RunningTime, doom, deltaTime);
-			Vector3f vec = { 0,0,0 };
-			doom.SetModelsPosition(vec);
+			spline.Update(RunningTime, doom, deltaTime);
+			Vector3f vec = { 0,0,0 }; //Comment this to walk on curve
+			doom.SetModelsPosition(vec);//And this
 			plane.Render(simpleShader);
+			//ccd.ComputeCCDLink(targetPoint, doom);
+			
 			doom.Render(skeletalAnimationShader);
+			
 			//spline.DrawCurve(curveShader);
 		}
 		

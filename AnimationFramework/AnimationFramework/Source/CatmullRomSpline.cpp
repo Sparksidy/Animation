@@ -236,9 +236,6 @@ float CatMullRomSpline::GetParameterFromArcLength(float distance, int& index)
 	}
 
 	return -1.0f;
-
-	//return BinarySearch(l, r, distance);
-
 }
 
 float CatMullRomSpline::BinarySearch(int l, int r, float arclength)

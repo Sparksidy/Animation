@@ -145,6 +145,8 @@ private:
 		std::map<string, unsigned int> m_BoneMapping;
 		vector<BoneInfo> m_BoneInfo;
 		Matrix4f m_GlobalInverseTransform;
+
+		void ComputeCCD();
 		
 	//IK
 	private:

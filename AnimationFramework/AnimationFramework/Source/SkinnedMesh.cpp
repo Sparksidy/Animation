@@ -9,6 +9,8 @@
 #define BONE_ID_LOCATION		3
 #define BONE_WEIGHT_LOCATION	4
 
+float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2);
+
 
 void SkinnedMesh::VertexBoneData::AddBoneData(unsigned int BoneID, float Weight)
 {
@@ -112,7 +114,7 @@ void SkinnedMesh::UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matr
 		SetBoneTransform(i, Transforms[i]);
 	}
 
-	CreateSubChain();
+	
 }
 
 
@@ -501,6 +503,10 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	//Traverse the node hierarchy and update the final bone transformation according to the animation time
 	ReadNodeHierarchy(t, m_Scene->mRootNode, Identity);
 
+	//IK
+	CreateSubChain();
+	ComputeCCD();
+
 	Transforms.resize(m_NumBones);
 	BonePosition.resize(m_NumBones);
 	
@@ -512,7 +518,151 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 
 	
 }
+void SkinnedMesh:: ComputeCCD()
+{
+	glm::vec3 target = {0,10,100};
 
+
+	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector, crossResult;
+	double cosAngle, turnAngle, turnDeg;
+	int link, tries, Chainsize;
+
+	tries = 0;
+	Chainsize = ChainLink.size() - 1;
+	link = Chainsize - 1;
+
+	//So that it starts from root to the finger
+	std::reverse(ChainLink.begin(), ChainLink.end());
+
+	do {
+		//Position of the end effector
+		currEnd.x = ChainLink[Chainsize]->mTransformation[0][3];
+		currEnd.y = ChainLink[Chainsize]->mTransformation[1][3];
+		currEnd.z = ChainLink[Chainsize]->mTransformation[2][3];
+
+
+		//Get the rootPos
+		rootPos.x =ChainLink[link]->mTransformation[0][3];
+		rootPos.y =ChainLink[link]->mTransformation[1][3];
+		rootPos.z =ChainLink[link]->mTransformation[2][3];
+
+
+		//Desired End effector position
+		desiredEnd.x = target.x;
+		desiredEnd.y = target.y;
+		desiredEnd.z = target.z;
+
+		//Check if you are already close enough
+		if (VectorSquaredDistance(currEnd, desiredEnd) > 1.0f)
+		{
+			//Create a vector to the current effector pos
+			curVector.x = currEnd.x - rootPos.x;
+			curVector.y = currEnd.y - rootPos.y;
+			curVector.z = currEnd.z - rootPos.z;
+
+			//Create the desired effector position vector
+			targetVector.x = target.x - rootPos.x;
+			targetVector.y = target.y - rootPos.y;
+			targetVector.z = target.z - rootPos.z;
+
+			//Normalize the vectors
+			targetVector = glm::normalize(targetVector);
+			curVector = glm::normalize(curVector);
+
+			//Dot product gives me the cosine of the angle
+			cosAngle = glm::dot(targetVector, curVector);
+
+			//If dot is 1.0 we don't need to do anything as it is 0 degrees
+			if (cosAngle < 0.99999f)
+			{
+				//ROTATE IT
+
+				//Calculate the by how much to rotate
+				turnAngle = acos((float)cosAngle);
+
+				//Convert Radians to Degrees
+				turnDeg = turnAngle * (180 / 3.14f);
+
+				//TODO: CLAMPING
+				if (turnDeg > 180)
+					turnDeg = 180;
+
+				//Use the cross product to check which way to rotate
+				crossResult = glm::cross(targetVector, curVector);
+				crossResult = glm::normalize(crossResult);
+
+				Matrix4f NodeTransformation(ChainLink[link]->mTransformation);
+
+				//The 3x3 upper of mTransformation gives the orientation
+				aiMatrix4x4 CurRotation;
+
+				CurRotation[0][0] = ChainLink[link]->mTransformation[0][0];
+				CurRotation[0][1] = ChainLink[link]->mTransformation[0][1];
+				CurRotation[0][2] = ChainLink[link]->mTransformation[0][2];
+				CurRotation[0][3] = 0;
+				CurRotation[1][0] = ChainLink[link]->mTransformation[1][0];
+				CurRotation[1][1] = ChainLink[link]->mTransformation[1][1];
+				CurRotation[1][2] = ChainLink[link]->mTransformation[1][2];
+				CurRotation[1][3] = 0;
+				CurRotation[2][0] = ChainLink[link]->mTransformation[2][0];
+				CurRotation[2][1] = ChainLink[link]->mTransformation[2][1];
+				CurRotation[2][2] = ChainLink[link]->mTransformation[2][2];
+				CurRotation[2][3] = 0;
+				CurRotation[3][0] = 0;
+				CurRotation[3][1] = 0;
+				CurRotation[3][2] = 0;
+				CurRotation[3][3] = 1;
+
+				aiQuaternion NewRotation(turnDeg, crossResult.x, crossResult.y, crossResult.z);
+				NewRotation = NewRotation.Normalize();
+				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
+				aiMatrix4x4 Rotation = CurRotation * NewRotationMatrix;
+			
+
+				//The 4th Column gives the translation vector
+				aiVector3D CurTranslation;
+				CurTranslation.x = ChainLink[link]->mTransformation[0][3];
+				CurTranslation.y = ChainLink[link]->mTransformation[1][3];
+				CurTranslation.z = ChainLink[link]->mTransformation[2][3];
+				Matrix4f Translation;
+				Translation.InitTranslationTransform(CurTranslation.x, CurTranslation.y, CurTranslation.z);
+
+				NodeTransformation = Translation * Rotation;
+
+				//Concatenating with the parent transforms (FIXING THE HIERARCHY)
+				Matrix4f GlobalTransformation;
+				if (link != 0)				//Parent * Node
+					GlobalTransformation = (Matrix4f)ChainLink[link]->mParent->mTransformation * NodeTransformation;
+
+				//Updating the bone transformations
+				if (m_BoneMapping.find(ChainLink[link]->mName.data) != m_BoneMapping.end())
+				{
+					unsigned int BoneIndex = m_BoneMapping[ChainLink[link]->mName.data];
+					m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
+					m_BoneInfo[BoneIndex].BonePosition = m_GlobalInverseTransform * GlobalTransformation;
+
+				}
+
+				//TODO: Degree Of Freedom Restrictions
+
+
+
+			}
+
+			if (--link < 0)
+				link = Chainsize - 1;
+
+		}
+
+
+
+	} while (tries++ < 100 && VectorSquaredDistance(currEnd, desiredEnd) > 1.0f);
+}
+
+float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2)
+{
+	return pow((pos2.x - pos1.x), 2) + pow((pos2.y - pos1.y), 2) + pow((pos2.z - pos1.z), 2);
+}
 
 void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
