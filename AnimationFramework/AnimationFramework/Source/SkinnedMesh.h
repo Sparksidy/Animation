@@ -142,6 +142,12 @@ private:
 		std::vector<const aiNode*> ChainLink;
 		const aiNode* finger = nullptr;
 
+		std::map<string, unsigned int> m_BoneMapping;
+		vector<BoneInfo> m_BoneInfo;
+		Matrix4f m_GlobalInverseTransform;
+
+		void ComputeCCD();
+		
 	//IK
 	private:
 
@@ -180,10 +186,10 @@ private:
 	vector<Meshentry> m_Entries;
 	vector<Textures*> m_Textures;
 
-	std::map<string, unsigned int> m_BoneMapping;
+
 	unsigned int m_NumBones;
-	vector<BoneInfo> m_BoneInfo;
-	Matrix4f m_GlobalInverseTransform;
+	/*vector<BoneInfo> m_BoneInfo;
+	Matrix4f m_GlobalInverseTransform;*/
 
 	const aiScene* m_Scene;
 	Assimp::Importer m_Importer;
