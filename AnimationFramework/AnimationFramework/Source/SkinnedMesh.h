@@ -78,14 +78,14 @@ private:
 		Matrix4f BoneOffset;
 		Matrix4f FinalTransformation;
 		Matrix4f BonePosition;
-		aiBone*	 Parent;
-		string	 BoneName;
+		Matrix4f GlobalTransformationMatrix;
 
 		BoneInfo()
 		{
 			BoneOffset.SetZero();
 			FinalTransformation.SetZero();
 			BonePosition.SetZero();
+			GlobalTransformationMatrix.SetZero();
 		}
 	};
 
@@ -123,7 +123,7 @@ private:
 
 	void Clear();
 
-	void ReadNodeHierarchy(float AnimationTime, const aiNode* pNode, const Matrix4f& ParentTransform);
+	void ReadNodeHierarchy(float AnimationTime,  aiNode* pNode, const Matrix4f& ParentTransform);
 	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
 
 	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
@@ -137,16 +137,25 @@ private:
 	//IK
 	public:
 		void CreateSubChain();
-		
+		void ComputeCCD();
+		aiMatrix4x4 GetWorldSpace(int index);
+		void ReadChainHiearchy(Matrix4f BonePosition, int link);
+		void ReadSkeletonCylinder();
+		aiMatrix4x4 ToAiMatrix(Matrix4f matrix);
+		aiVector3D CalculateTranslationFromMatrix(aiMatrix4x4 matrix);
+		aiMatrix4x4 CalculateRotationFromMatrix(aiMatrix4x4 matrix);
+		void ReadSkeleton(aiNode * pNode, const Matrix4f & ParentTransform);
+
+		//Number of IK Tries
+		int tries;
+
 		string right_finger = "Bip01_R_Finger1";
-		std::vector<const aiNode*> ChainLink;
-		const aiNode* finger = nullptr;
+		std::vector<aiNode*> ChainLink;
+		aiNode* finger = nullptr;
 
 		std::map<string, unsigned int> m_BoneMapping;
 		vector<BoneInfo> m_BoneInfo;
 		Matrix4f m_GlobalInverseTransform;
-
-		void ComputeCCD();
 		
 	//IK
 	private:

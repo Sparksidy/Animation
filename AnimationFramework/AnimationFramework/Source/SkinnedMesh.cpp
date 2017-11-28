@@ -9,6 +9,9 @@
 #define BONE_ID_LOCATION		3
 #define BONE_WEIGHT_LOCATION	4
 
+#define MAX_IK_TRIES		100
+#define MIN_IK_THRESH		1.0f
+
 float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2);
 
 
@@ -32,6 +35,7 @@ SkinnedMesh::SkinnedMesh()
 	ZERO_MEM(m_Buffers);
 	m_NumBones = 0;
 	m_Scene = NULL;
+	tries = 0;
 
 }
 
@@ -105,7 +109,6 @@ void SkinnedMesh::SetMVP(Shader& shader)
 	shader.setMat4("view", view);
 
 }
-
 void SkinnedMesh::UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition, float RunningTime, float a)
 {
 	BoneTransform(RunningTime, Transforms, BonePosition, a);
@@ -137,11 +140,13 @@ bool SkinnedMesh::LoadMesh(const string& filename)
 	{
 		m_GlobalInverseTransform = m_Scene->mRootNode->mTransformation;
 		m_GlobalInverseTransform.Inverse();
+		
 		Ret = InitFromScene(m_Scene, filename);
 	}
 	else
 	{
 		printf("Error parsing '%s': '%s'\n", filename.c_str(), m_Importer.GetErrorString());
+		return false;
 	}
 
 
@@ -335,8 +340,6 @@ void SkinnedMesh::LoadBones(uint MeshIndex, const aiMesh* pMesh, vector<VertexBo
 
 		//Store the aiBone for right finger IK
 		
-			
-
 		//If new bone
 		if (m_BoneMapping.find(BoneName) == m_BoneMapping.end())
 		{
@@ -367,26 +370,8 @@ void SkinnedMesh::LoadBones(uint MeshIndex, const aiMesh* pMesh, vector<VertexBo
 
 	}
 
+	std::cout << std::endl;
 	
-	
-}
-
-void SkinnedMesh::CreateSubChain()
-{
-	if (finger)
-	{
-		while (finger != m_Scene->mRootNode)
-		{
-			//If node name is the same as the bone name
-			if (m_BoneMapping.find(finger->mName.data) != m_BoneMapping.end())
-			{
-				ChainLink.push_back(finger);
-			}
-			finger = finger->mParent;
-		}
-		ChainLink.push_back(m_Scene->mRootNode);
-	}
-
 }
 
 
@@ -430,7 +415,7 @@ const aiNodeAnim* SkinnedMesh::FindNodeAnim(const aiAnimation* pAnimation, const
 	return NULL;
 }
 
-void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, const Matrix4f & ParentTransform)
+void SkinnedMesh::ReadNodeHierarchy(float AnimationTime,  aiNode * pNode, const Matrix4f & ParentTransform)
 {
 
 	string Nodename(pNode->mName.data);
@@ -475,10 +460,14 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, c
 	//Update the final transformation of the bone
 	if (m_BoneMapping.find(Nodename) != m_BoneMapping.end())
 	{
+		
 		unsigned int BoneIndex = m_BoneMapping[Nodename];
+
+		
 		m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
 		m_BoneInfo[BoneIndex].BonePosition = m_GlobalInverseTransform * GlobalTransformation;
-		
+		m_BoneInfo[BoneIndex].GlobalTransformationMatrix = GlobalTransformation;
+
 	}
 
 	//Recursively update the bone transformation of all the childeren
@@ -489,6 +478,7 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTime, const aiNode * pNode, c
 	
 }
 float t = 0;
+static bool flag = false;
 void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transforms, vector<Matrix4f>& BonePosition,float a)
 {
 	Matrix4f Identity;
@@ -501,11 +491,26 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	t = fmod(t, m_Scene->mAnimations[0]->mDuration);
 
 	//Traverse the node hierarchy and update the final bone transformation according to the animation time
-	ReadNodeHierarchy(t, m_Scene->mRootNode, Identity);
+	//ReadNodeHierarchy(0, m_Scene->mRootNode, Identity);
+
+	
+	ReadSkeleton(m_Scene->mRootNode, Identity);
 
 	//IK
+	ChainLink.clear();
 	CreateSubChain();
-	ComputeCCD();
+	if (!flag)
+	{
+		flag = true;
+		ComputeCCD();
+	}
+		
+	
+	//IK
+
+	//ReadNodeHierarchy(0, m_Scene->mRootNode, Identity);
+	ReadSkeleton(m_Scene->mRootNode, Identity);
+
 
 	Transforms.resize(m_NumBones);
 	BonePosition.resize(m_NumBones);
@@ -518,34 +523,66 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 
 	
 }
+
+void SkinnedMesh::CreateSubChain()
+{
+	if (finger)
+	{
+		while (finger != m_Scene->mRootNode)
+		{
+			//If node name is the same as the bone name
+			if (m_BoneMapping.find(finger->mName.data) != m_BoneMapping.end())
+			{
+				
+				ChainLink.push_back(finger);
+			}
+			finger = finger->mParent;
+		}
+		
+		ChainLink.push_back(m_Scene->mRootNode);
+	}
+
+}
+
 void SkinnedMesh:: ComputeCCD()
 {
-	glm::vec3 target = {0,10,100};
+	//Target
+	Vector3f target = {0,10,10};
+	
+	target = (m_GlobalInverseTransform * Vector4f(target.x, target.y, target.z,0)).to3f();
 
-
-	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector, crossResult;
+	//Variables
+	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector;
+	glm::vec3 crossResult;
 	double cosAngle, turnAngle, turnDeg;
-	int link, tries, Chainsize;
+	int link, Chainsize;
 
-	tries = 0;
+
 	Chainsize = ChainLink.size() - 1;
-	link = Chainsize - 1;
-
-	//So that it starts from root to the finger
-	std::reverse(ChainLink.begin(), ChainLink.end());
+	link = 1;
 
 	do {
-		//Position of the end effector
-		currEnd.x = ChainLink[Chainsize]->mTransformation[0][3];
-		currEnd.y = ChainLink[Chainsize]->mTransformation[1][3];
-		currEnd.z = ChainLink[Chainsize]->mTransformation[2][3];
+		//Position of the end effector in world space
+		aiMatrix4x4 matrix = GetWorldSpace(0);
+		currEnd.x = matrix[0][3];
+		currEnd.y = matrix[1][3];
+		currEnd.z = matrix[2][3];
 
+		/*aiVector3D transformationlocalSpaceofEE;
 
-		//Get the rootPos
-		rootPos.x =ChainLink[link]->mTransformation[0][3];
-		rootPos.y =ChainLink[link]->mTransformation[1][3];
-		rootPos.z =ChainLink[link]->mTransformation[2][3];
+		if(link == 0)
+			transformationlocalSpaceofEE = aiVector3D(currEnd.x, currEnd.y, currEnd.z);
+		else
+			transformationlocalSpaceofEE = ChainLink[link]->mParent->mTransformation.Inverse() * aiVector3D(currEnd.x, currEnd.y, currEnd.z);
+*/
+		//Get the Current jointPos in world Space
+		aiMatrix4x4 rootMatrix = GetWorldSpace(link);
+		rootPos.x = rootMatrix[0][3];
+		rootPos.y = rootMatrix[1][3];
+		rootPos.z = rootMatrix[2][3];
+		aiMatrix4x4 CurrJointWorldTransform = rootMatrix;
 
+		
 
 		//Desired End effector position
 		desiredEnd.x = target.x;
@@ -575,88 +612,258 @@ void SkinnedMesh:: ComputeCCD()
 			//If dot is 1.0 we don't need to do anything as it is 0 degrees
 			if (cosAngle < 0.99999f)
 			{
-				//ROTATE IT
-
+			
 				//Calculate the by how much to rotate
 				turnAngle = acos((float)cosAngle);
 
 				//Convert Radians to Degrees
-				turnDeg = turnAngle * (180 / 3.14f);
+				turnDeg = turnAngle;//* (180 / 3.14f);
 
 				//TODO: CLAMPING
 				if (turnDeg > 180)
 					turnDeg = 180;
 
 				//Use the cross product to check which way to rotate
-				crossResult = glm::cross(targetVector, curVector);
+				crossResult =  glm::cross(targetVector, curVector);
 				crossResult = glm::normalize(crossResult);
-
-				Matrix4f NodeTransformation(ChainLink[link]->mTransformation);
-
-				//The 3x3 upper of mTransformation gives the orientation
-				aiMatrix4x4 CurRotation;
-
-				CurRotation[0][0] = ChainLink[link]->mTransformation[0][0];
-				CurRotation[0][1] = ChainLink[link]->mTransformation[0][1];
-				CurRotation[0][2] = ChainLink[link]->mTransformation[0][2];
-				CurRotation[0][3] = 0;
-				CurRotation[1][0] = ChainLink[link]->mTransformation[1][0];
-				CurRotation[1][1] = ChainLink[link]->mTransformation[1][1];
-				CurRotation[1][2] = ChainLink[link]->mTransformation[1][2];
-				CurRotation[1][3] = 0;
-				CurRotation[2][0] = ChainLink[link]->mTransformation[2][0];
-				CurRotation[2][1] = ChainLink[link]->mTransformation[2][1];
-				CurRotation[2][2] = ChainLink[link]->mTransformation[2][2];
-				CurRotation[2][3] = 0;
-				CurRotation[3][0] = 0;
-				CurRotation[3][1] = 0;
-				CurRotation[3][2] = 0;
-				CurRotation[3][3] = 1;
-
-				aiQuaternion NewRotation(turnDeg, crossResult.x, crossResult.y, crossResult.z);
-				NewRotation = NewRotation.Normalize();
-				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
-				aiMatrix4x4 Rotation = CurRotation * NewRotationMatrix;
+				crossResult.x = crossResult.x * sin(turnDeg / 2) ;
+				crossResult.y = crossResult.y * sin(turnDeg / 2);
+				crossResult.z = crossResult.z * sin(turnDeg / 2);
 			
 
 				//The 4th Column gives the translation vector
-				aiVector3D CurTranslation;
-				CurTranslation.x = ChainLink[link]->mTransformation[0][3];
-				CurTranslation.y = ChainLink[link]->mTransformation[1][3];
-				CurTranslation.z = ChainLink[link]->mTransformation[2][3];
-				Matrix4f Translation;
-				Translation.InitTranslationTransform(CurTranslation.x, CurTranslation.y, CurTranslation.z);
+				//aiVector3D CurTranslation = CalculateTranslationFromMatrix(CurrJointWorldTransform);
+				//Matrix4f Translation;
+				//Translation.InitTranslationTransform(CurTranslation.x, CurTranslation.y, CurTranslation.z);
 
-				NodeTransformation = Translation * Rotation;
+				//////The 3x3 upper of mTransformation gives the orientation
+				//aiMatrix4x4 CurRotation = CalculateRotationFromMatrix(CurrJointWorldTransform);
 
-				//Concatenating with the parent transforms (FIXING THE HIERARCHY)
-				Matrix4f GlobalTransformation;
-				if (link != 0)				//Parent * Node
-					GlobalTransformation = (Matrix4f)ChainLink[link]->mParent->mTransformation * NodeTransformation;
+				aiMatrix4x4 CurrJointLocalSpace = CurrJointWorldTransform.Inverse();
+				aiVector3D CrossResultInLocalSpace = (aiMatrix3x3) CurrJointLocalSpace * aiVector3D(crossResult.x, crossResult.y, crossResult.z);
 
-				//Updating the bone transformations
-				if (m_BoneMapping.find(ChainLink[link]->mName.data) != m_BoneMapping.end())
-				{
-					unsigned int BoneIndex = m_BoneMapping[ChainLink[link]->mName.data];
-					m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
-					m_BoneInfo[BoneIndex].BonePosition = m_GlobalInverseTransform * GlobalTransformation;
+				//Calculating the new Rotation
+				aiQuaternion NewRotation(cos(turnDeg/2), CrossResultInLocalSpace.x, CrossResultInLocalSpace.y, CrossResultInLocalSpace.z);
+				NewRotation = NewRotation.Normalize();
+				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
+				//aiMatrix4x4 Rotation = CurRotation * NewRotationMatrix;
+				
 
-				}
+				//Calculating the Node Transformation
+				/*Matrix4f NodeTransformation(CurrJointWorldTransform);
+				NodeTransformation = Translation * Rotation;*/
 
+				
+				//Converting Matrix4f to aiMatrix4x4 and saving the NodeTransformation back to the mTransformation
+				//CurrJointWorldTransform = ToAiMatrix(NodeTransformation);
+				
+
+				ChainLink[link]->mTransformation = NewRotationMatrix * ChainLink[link]->mTransformation ;
+				
+				//Parent * Node
+				//Matrix4f parentWorldTransform = GetWorldSpace(link + 1);
+				//Matrix4f GlobalTransformation = parentWorldTransform * CurrJointWorldTransform;
+				
+				
 				//TODO: Degree Of Freedom Restrictions
-
-
 
 			}
 
-			if (--link < 0)
-				link = Chainsize - 1;
+			if (++link > ChainLink.size() - 1 )
+				link = 1;
 
 		}
 
+	} while (tries++ < MAX_IK_TRIES && VectorSquaredDistance(currEnd, desiredEnd) > MIN_IK_THRESH);
+
+	//Matrix4f GlobalTransformation;
+	//for (int i = Chainsize; i >= 0; i--)
+	//{
+	//	GlobalTransformation =  (Matrix4f)ChainLink[i]->mTransformation * GlobalTransformation ;
+	//	//Actually Updating the final bone transformation and bone position
+	//	if (m_BoneMapping.find(ChainLink[link]->mName.data) != m_BoneMapping.end())
+	//	{
+
+	//		unsigned int BoneIndex = m_BoneMapping[ChainLink[link]->mName.data];
+	//		m_BoneInfo[BoneIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
+	//		m_BoneInfo[BoneIndex].BonePosition =  GlobalTransformation;
+
+	//		/*
+	//		Matrix4f GlobalMatrix = m_BoneInfo[BoneIndex].GlobalTransformationMatrix;
+	//		Matrix4f GlobalTransformation = GlobalMatrix * NodeTransformation;
+	//		ReadChainHiearchy(GlobalTransformation, link);
+	//		*/
+	//	}
+
+	//}
+	
+
+	
+
+}
+
+aiMatrix4x4 SkinnedMesh::GetWorldSpace(int index)
+{
+	aiMatrix4x4 WorldMatrix;
+
+	for (int i = index; i <= ChainLink.size() - 1; i++)
+	{
+		WorldMatrix = ChainLink[i]->mTransformation * WorldMatrix ;
+	}
+
+	return WorldMatrix;
+}
+
+void SkinnedMesh::ReadChainHiearchy(Matrix4f ParentGlobalTransform, int link)
+{
+
+	for (int i = link + 1; i < ChainLink.size(); i++)
+	{
+		if (m_BoneMapping.find(ChainLink[i]->mName.data) != m_BoneMapping.end())
+		{
+
+			unsigned int BoneIndex = m_BoneMapping[ChainLink[i]->mName.data];
+			m_BoneInfo[BoneIndex].GlobalTransformationMatrix = ParentGlobalTransform * ChainLink[i]->mTransformation;
+			m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * m_BoneInfo[BoneIndex].GlobalTransformationMatrix * m_BoneInfo[BoneIndex].BoneOffset;
+			m_BoneInfo[BoneIndex].BonePosition = m_GlobalInverseTransform * m_BoneInfo[BoneIndex].GlobalTransformationMatrix;
+
+			ParentGlobalTransform = m_BoneInfo[BoneIndex].GlobalTransformationMatrix;
+		}
+	}
 
 
-	} while (tries++ < 100 && VectorSquaredDistance(currEnd, desiredEnd) > 1.0f);
+}
+
+void SkinnedMesh::ReadSkeletonCylinder()
+{
+	aiNode* currNode = m_Scene->mRootNode;
+	unsigned int BoneIndex = 0;
+	Matrix4f Identity;
+	Identity.InitIdentity();
+
+	while (currNode != nullptr)
+	{
+		
+		string BoneName(currNode->mName.data);
+
+		//If new bone
+		if (m_BoneMapping.find(BoneName) == m_BoneMapping.end())
+		{
+			//Allocate index for a new bone
+			BoneIndex = m_NumBones;
+			
+			m_NumBones++;
+			BoneInfo bi;
+			m_BoneInfo.push_back(bi);
+			m_BoneInfo[BoneIndex].BoneOffset = Identity;
+
+
+			m_BoneMapping[BoneName] = BoneIndex;
+
+		}
+		else
+		{
+			BoneIndex = m_BoneMapping[BoneName];
+		}
+
+		ChainLink.push_back(currNode);
+		if (currNode->mChildren)
+			currNode = currNode->mChildren[0];
+		else
+			break;
+	}
+
+	ReadChainHiearchy(Identity, 0);
+
+		
+}
+
+aiMatrix4x4 SkinnedMesh::ToAiMatrix(Matrix4f matrix)
+{
+	aiMatrix4x4 newMatrix;
+	newMatrix[0][0] = matrix.m[0][0];
+	newMatrix[0][1] = matrix.m[0][1];
+	newMatrix[0][2] = matrix.m[0][2];
+	newMatrix[0][3] = matrix.m[0][3];
+	newMatrix[1][0] = matrix.m[1][0];
+	newMatrix[1][1] = matrix.m[1][1];
+	newMatrix[1][2] = matrix.m[1][2];
+	newMatrix[1][3] = matrix.m[1][3];
+	newMatrix[2][0] = matrix.m[2][0];
+	newMatrix[2][1] = matrix.m[2][1];
+	newMatrix[2][2] = matrix.m[2][2];
+	newMatrix[2][3] = matrix.m[2][3];
+	newMatrix[3][0] = matrix.m[3][0];
+	newMatrix[3][1] = matrix.m[3][1];
+	newMatrix[3][2] = matrix.m[3][2];
+	newMatrix[3][3] = matrix.m[3][3];
+							
+	return newMatrix;
+}
+
+aiVector3D SkinnedMesh::CalculateTranslationFromMatrix(aiMatrix4x4 matrix)
+{
+	aiVector3D CurTranslation;
+	CurTranslation.x = matrix[0][3];
+	CurTranslation.y = matrix[1][3];
+	CurTranslation.z = matrix[2][3];
+	
+	return CurTranslation;
+}
+
+aiMatrix4x4 SkinnedMesh::CalculateRotationFromMatrix(aiMatrix4x4 matrix)
+{
+	aiMatrix4x4 CurRotation;
+
+	CurRotation[0][0] = matrix[0][0];
+	CurRotation[0][1] = matrix[0][1];
+	CurRotation[0][2] = matrix[0][2];
+	CurRotation[0][3] = 0;
+	CurRotation[1][0] = matrix[1][0];
+	CurRotation[1][1] = matrix[1][1];
+	CurRotation[1][2] = matrix[1][2];
+	CurRotation[1][3] = 0;
+	CurRotation[2][0] = matrix[2][0];
+	CurRotation[2][1] = matrix[2][1];
+	CurRotation[2][2] = matrix[2][2];
+	CurRotation[2][3] = 0;
+	CurRotation[3][0] = 0;
+	CurRotation[3][1] = 0;
+	CurRotation[3][2] = 0;
+	CurRotation[3][3] = 1;
+
+	return CurRotation;
+	
+}
+
+void SkinnedMesh::ReadSkeleton(aiNode * pNode, const Matrix4f & ParentTransform)
+{
+	string Nodename(pNode->mName.data);
+
+	if (Nodename == right_finger)
+	{
+		finger = pNode;
+	}
+
+	Matrix4f GlobalTransformation = ParentTransform * pNode->mTransformation;
+
+	//Update the final transformation of the bone
+	if (m_BoneMapping.find(Nodename) != m_BoneMapping.end())
+	{
+
+		unsigned int BoneIndex = m_BoneMapping[Nodename];
+
+
+		m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
+		m_BoneInfo[BoneIndex].BonePosition = m_GlobalInverseTransform * GlobalTransformation;
+		m_BoneInfo[BoneIndex].GlobalTransformationMatrix = GlobalTransformation;
+
+	}
+
+	//Recursively update the bone transformation of all the childeren
+	for (uint i = 0; i < pNode->mNumChildren; i++) {
+		ReadSkeleton( pNode->mChildren[i], GlobalTransformation);
+	}
 }
 
 float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2)
@@ -683,7 +890,6 @@ void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, 
 	Out = Start + Factor * Delta;
 }
 
-
 void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	// we need at least two values to interpolate...
@@ -703,7 +909,6 @@ void SkinnedMesh::CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTim
 	aiQuaternion::Interpolate(Out, StartRotationQ, EndRotationQ, Factor);
 	Out = Out.Normalize();
 }
-
 
 void SkinnedMesh::CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
@@ -753,9 +958,6 @@ void SkinnedMesh::SendBonesLocationToShader(const Shader& shader)
 
 }
 
-
-
-
 uint SkinnedMesh::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {
 	assert(pNodeAnim->mNumRotationKeys > 0);
@@ -770,7 +972,6 @@ uint SkinnedMesh::FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim)
 
 	return 0;
 }
-
 
 uint SkinnedMesh::FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim)
 {

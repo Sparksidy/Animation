@@ -110,6 +110,7 @@ int main()
 
 		spline.UpdateMVP(curveShader);
 
+	
 		if (drawskeleton)
 		{
 			//spline.Update(RunningTime, doom,deltaTime);
@@ -120,12 +121,10 @@ int main()
 		}
 		else
 		{
-			spline.Update(RunningTime, doom, deltaTime);
+			//spline.Update(RunningTime, doom, deltaTime);
 			Vector3f vec = { 0,0,0 }; //Comment this to walk on curve
 			doom.SetModelsPosition(vec);//And this
 			plane.Render(simpleShader);
-			//ccd.ComputeCCDLink(targetPoint, doom);
-			
 			doom.Render(skeletalAnimationShader);
 			
 			//spline.DrawCurve(curveShader);
