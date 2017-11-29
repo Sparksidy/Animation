@@ -479,6 +479,7 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 {
 	Matrix4f Identity;
 	Identity.InitIdentity();
+
 	
 	//Calculate the animation time
 	float TicksPerSecond = m_Scene->mAnimations[0]->mTicksPerSecond > 0 ? m_Scene->mAnimations[0]->mTicksPerSecond  : 200.0f * a ;
@@ -498,9 +499,11 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	//ChainLink.clear();
 
 	CreateSubChain();
-
+	
+	
 	if (!flag)
 	{
+		
 		flag = true;
 		ComputeCCD();
 	}
@@ -544,14 +547,15 @@ void SkinnedMesh::CreateSubChain()
 
 }
 
-#define MAX_IK_TRIES		5
+#define MAX_IK_TRIES		10
 #define MIN_IK_THRESH		1.0f
 
 void SkinnedMesh:: ComputeCCD()
-{
+{ 
 	//Target
 	Vector3f target = {0, 10, 10};
 	
+
 	//Variables
 	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector;
 	glm::vec3 crossResult;
@@ -610,9 +614,9 @@ void SkinnedMesh:: ComputeCCD()
 				//Calculate the by how much to rotate
 				turnDeg = acos((float)cosAngle);
 
-				//CLAMPING: CLamp if greater then 90 degrees or 0.5 Radians
-				if (turnDeg > 0.5f)
-					turnDeg = 0.5f;
+				//CLAMPING: CLamp if greater then 90 degrees or 0.5 Radians -CHANGE THIS LATER
+				if (turnDeg > 0.2f)
+					turnDeg = 0.2f;
 
 				//Use the cross product to check which way to rotate
 				crossResult =  glm::cross(targetVector, curVector);
@@ -621,7 +625,7 @@ void SkinnedMesh:: ComputeCCD()
 				crossResult.y = crossResult.y * sin(turnDeg / 2);
 				crossResult.z = crossResult.z * sin(turnDeg / 2);
 			
-				//Get the axis in Local Space
+				//Get the axis to rotate in Local Space
 				aiMatrix4x4 CurrJointLocalSpace = CurrJointWorldTransform.Inverse();
 				aiVector3D CrossResultInLocalSpace = (aiMatrix3x3) CurrJointLocalSpace * aiVector3D(crossResult.x, crossResult.y, crossResult.z);
 

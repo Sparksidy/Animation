@@ -13,6 +13,7 @@
 #include "util.h"
 #include "math_3d.h"
 #include "Textures.h"
+#include "TransformEditor.h"
 
 
 #include <string>
@@ -148,7 +149,7 @@ private:
 
 		//Number of IK Tries
 		int tries;
-
+		
 		string right_finger = "Bip01_R_Finger1";
 		std::vector<aiNode*> ChainLink;
 		aiNode* finger = nullptr;

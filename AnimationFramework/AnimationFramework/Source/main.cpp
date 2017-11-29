@@ -65,6 +65,7 @@ int main()
 	//DEBUG
 	TransformEditor transformEditor;
 	glm::mat4 model;
+	model = glm::translate(model, glm::vec3(0, 10, 10));
 	
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
@@ -99,8 +100,7 @@ int main()
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		transformEditor.Update(model);
-	
+		
 		vector<Matrix4f> Transforms;
 		vector<Matrix4f> BonePosition;
 		doom.SetMVP(skeletalAnimationShader);
@@ -111,7 +111,8 @@ int main()
 
 		spline.UpdateMVP(curveShader);
 
-	
+		transformEditor.Update(model);
+
 		if (drawskeleton)
 		{
 			//spline.Update(RunningTime, doom,deltaTime);
