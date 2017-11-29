@@ -9,8 +9,7 @@
 #define BONE_ID_LOCATION		3
 #define BONE_WEIGHT_LOCATION	4
 
-#define MAX_IK_TRIES		100
-#define MIN_IK_THRESH		1.0f
+
 
 float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2);
 
@@ -120,7 +119,6 @@ void SkinnedMesh::UpdateBoneTransforms(vector<Matrix4f>& Transforms, vector<Matr
 	
 }
 
-
 bool SkinnedMesh::LoadMesh(const string& filename)
 {
 	//Clear existing buffers
@@ -155,8 +153,6 @@ bool SkinnedMesh::LoadMesh(const string& filename)
 	return Ret;
 
 }
-
-
 
 bool SkinnedMesh::InitFromScene(const aiScene* pScene, const string& filename)
 {
@@ -493,23 +489,27 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	//Traverse the node hierarchy and update the final bone transformation according to the animation time
 	//ReadNodeHierarchy(0, m_Scene->mRootNode, Identity);
 
+	//IK
+
 	
+
 	ReadSkeleton(m_Scene->mRootNode, Identity);
 
-	//IK
 	ChainLink.clear();
+
 	CreateSubChain();
+
 	if (!flag)
 	{
 		flag = true;
 		ComputeCCD();
 	}
-		
-	
-	//IK
 
-	//ReadNodeHierarchy(0, m_Scene->mRootNode, Identity);
 	ReadSkeleton(m_Scene->mRootNode, Identity);
+
+	
+
+	//IK
 
 
 	Transforms.resize(m_NumBones);
@@ -544,17 +544,18 @@ void SkinnedMesh::CreateSubChain()
 
 }
 
+#define MAX_IK_TRIES		10
+#define MIN_IK_THRESH		1.0f
+
 void SkinnedMesh:: ComputeCCD()
 {
 	//Target
-	Vector3f target = {0,10,10};
-	
-	target = (m_GlobalInverseTransform * Vector4f(target.x, target.y, target.z,0)).to3f();
+	Vector3f target = {0, 10, 10};
 
 	//Variables
 	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector;
 	glm::vec3 crossResult;
-	double cosAngle, turnAngle, turnDeg;
+	double cosAngle, turnDeg;
 	int link, Chainsize;
 
 
@@ -568,13 +569,7 @@ void SkinnedMesh:: ComputeCCD()
 		currEnd.y = matrix[1][3];
 		currEnd.z = matrix[2][3];
 
-		/*aiVector3D transformationlocalSpaceofEE;
 
-		if(link == 0)
-			transformationlocalSpaceofEE = aiVector3D(currEnd.x, currEnd.y, currEnd.z);
-		else
-			transformationlocalSpaceofEE = ChainLink[link]->mParent->mTransformation.Inverse() * aiVector3D(currEnd.x, currEnd.y, currEnd.z);
-*/
 		//Get the Current jointPos in world Space
 		aiMatrix4x4 rootMatrix = GetWorldSpace(link);
 		rootPos.x = rootMatrix[0][3];
@@ -582,7 +577,6 @@ void SkinnedMesh:: ComputeCCD()
 		rootPos.z = rootMatrix[2][3];
 		aiMatrix4x4 CurrJointWorldTransform = rootMatrix;
 
-		
 
 		//Desired End effector position
 		desiredEnd.x = target.x;
@@ -614,14 +608,11 @@ void SkinnedMesh:: ComputeCCD()
 			{
 			
 				//Calculate the by how much to rotate
-				turnAngle = acos((float)cosAngle);
+				turnDeg = acos((float)cosAngle);
 
-				//Convert Radians to Degrees
-				turnDeg = turnAngle;//* (180 / 3.14f);
-
-				//TODO: CLAMPING
-				if (turnDeg > 180)
-					turnDeg = 180;
+				//CLAMPING: CLamp if greater then 90 degrees or 0.5 Radians
+				if (turnDeg > 0.5f)
+					turnDeg = 0.5f;
 
 				//Use the cross product to check which way to rotate
 				crossResult =  glm::cross(targetVector, curVector);
@@ -630,15 +621,7 @@ void SkinnedMesh:: ComputeCCD()
 				crossResult.y = crossResult.y * sin(turnDeg / 2);
 				crossResult.z = crossResult.z * sin(turnDeg / 2);
 			
-
-				//The 4th Column gives the translation vector
-				//aiVector3D CurTranslation = CalculateTranslationFromMatrix(CurrJointWorldTransform);
-				//Matrix4f Translation;
-				//Translation.InitTranslationTransform(CurTranslation.x, CurTranslation.y, CurTranslation.z);
-
-				//////The 3x3 upper of mTransformation gives the orientation
-				//aiMatrix4x4 CurRotation = CalculateRotationFromMatrix(CurrJointWorldTransform);
-
+				//Get the axis in Local Space
 				aiMatrix4x4 CurrJointLocalSpace = CurrJointWorldTransform.Inverse();
 				aiVector3D CrossResultInLocalSpace = (aiMatrix3x3) CurrJointLocalSpace * aiVector3D(crossResult.x, crossResult.y, crossResult.z);
 
@@ -646,25 +629,11 @@ void SkinnedMesh:: ComputeCCD()
 				aiQuaternion NewRotation(cos(turnDeg/2), CrossResultInLocalSpace.x, CrossResultInLocalSpace.y, CrossResultInLocalSpace.z);
 				NewRotation = NewRotation.Normalize();
 				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
-				//aiMatrix4x4 Rotation = CurRotation * NewRotationMatrix;
-				
-
-				//Calculating the Node Transformation
-				/*Matrix4f NodeTransformation(CurrJointWorldTransform);
-				NodeTransformation = Translation * Rotation;*/
-
-				
-				//Converting Matrix4f to aiMatrix4x4 and saving the NodeTransformation back to the mTransformation
-				//CurrJointWorldTransform = ToAiMatrix(NodeTransformation);
-				
-
-				ChainLink[link]->mTransformation = NewRotationMatrix * ChainLink[link]->mTransformation ;
-				
-				//Parent * Node
-				//Matrix4f parentWorldTransform = GetWorldSpace(link + 1);
-				//Matrix4f GlobalTransformation = parentWorldTransform * CurrJointWorldTransform;
 				
 				
+				ChainLink[link]->mTransformation =  ChainLink[link]->mTransformation * NewRotationMatrix;
+				
+			
 				//TODO: Degree Of Freedom Restrictions
 
 			}
@@ -676,30 +645,6 @@ void SkinnedMesh:: ComputeCCD()
 
 	} while (tries++ < MAX_IK_TRIES && VectorSquaredDistance(currEnd, desiredEnd) > MIN_IK_THRESH);
 
-	//Matrix4f GlobalTransformation;
-	//for (int i = Chainsize; i >= 0; i--)
-	//{
-	//	GlobalTransformation =  (Matrix4f)ChainLink[i]->mTransformation * GlobalTransformation ;
-	//	//Actually Updating the final bone transformation and bone position
-	//	if (m_BoneMapping.find(ChainLink[link]->mName.data) != m_BoneMapping.end())
-	//	{
-
-	//		unsigned int BoneIndex = m_BoneMapping[ChainLink[link]->mName.data];
-	//		m_BoneInfo[BoneIndex].FinalTransformation = GlobalTransformation * m_BoneInfo[BoneIndex].BoneOffset;
-	//		m_BoneInfo[BoneIndex].BonePosition =  GlobalTransformation;
-
-	//		/*
-	//		Matrix4f GlobalMatrix = m_BoneInfo[BoneIndex].GlobalTransformationMatrix;
-	//		Matrix4f GlobalTransformation = GlobalMatrix * NodeTransformation;
-	//		ReadChainHiearchy(GlobalTransformation, link);
-	//		*/
-	//	}
-
-	//}
-	
-
-	
-
 }
 
 aiMatrix4x4 SkinnedMesh::GetWorldSpace(int index)
@@ -708,7 +653,7 @@ aiMatrix4x4 SkinnedMesh::GetWorldSpace(int index)
 
 	for (int i = index; i <= ChainLink.size() - 1; i++)
 	{
-		WorldMatrix = ChainLink[i]->mTransformation * WorldMatrix ;
+		WorldMatrix = WorldMatrix * ChainLink[i]->mTransformation ;
 	}
 
 	return WorldMatrix;

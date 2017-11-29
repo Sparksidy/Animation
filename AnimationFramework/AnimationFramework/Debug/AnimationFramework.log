@@ -1,15 +1,15 @@
 ﻿  SkinnedMesh.cpp
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(194): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(488): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(491): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(629): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(630): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(631): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(646): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(672): warning C4018: '>': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(709): warning C4018: '<=': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(720): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(190): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(484): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(487): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(620): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(621): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(622): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(629): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(641): warning C4018: '>': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(654): warning C4018: '<=': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(665): warning C4018: '<': signed/unsigned mismatch
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

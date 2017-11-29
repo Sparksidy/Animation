@@ -144,7 +144,7 @@ private:
 		aiMatrix4x4 ToAiMatrix(Matrix4f matrix);
 		aiVector3D CalculateTranslationFromMatrix(aiMatrix4x4 matrix);
 		aiMatrix4x4 CalculateRotationFromMatrix(aiMatrix4x4 matrix);
-		void ReadSkeleton(aiNode * pNode, const Matrix4f & ParentTransform);
+		void ReadSkeleton(aiNode* pNode, const Matrix4f & ParentTransform);
 
 		//Number of IK Tries
 		int tries;
