@@ -25,9 +25,13 @@ public:
 	void Update(glm::mat4& model);
 	void Reset();
 
+	float translate[3];
+	
+
 private:
 	ImGuizmo::OPERATION		_currentOperation;
 	ImGuizmo::MODE			_currentMode;
+
 	
 
 };

@@ -65,6 +65,7 @@ int main()
 	//DEBUG
 	TransformEditor transformEditor;
 	glm::mat4 model;
+	
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -82,9 +83,9 @@ int main()
 		ImGui_ImplGlfwGL3_NewFrame();
 		ImGuizmo::BeginFrame();
 
-		
-		transformEditor.Update(model);
-		
+		ImGuiIO io = ImGui::GetIO();
+		ImVec2 mouse = io.MousePos;
+		std::cout << "Mouse: " << mouse.x << " " << mouse.y << std::endl;
 		
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -98,7 +99,7 @@ int main()
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
+		transformEditor.Update(model);
 	
 		vector<Matrix4f> Transforms;
 		vector<Matrix4f> BonePosition;
@@ -122,6 +123,7 @@ int main()
 		else
 		{
 			//spline.Update(RunningTime, doom, deltaTime);
+			
 			Vector3f vec = { 0,0,0 }; //Comment this to walk on curve
 			doom.SetModelsPosition(vec);//And this
 			plane.Render(simpleShader);
@@ -157,6 +159,12 @@ void mouse_callback_debug(GLFWwindow * window, double xpos, double ypos)
 
 	float xoffset = xpos - lastX;
 	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	ImGuiIO & io = ImGui::GetIO();
+
+	if (!io.MouseDown[0] || io.WantCaptureMouse || io.WantMoveMouse)
+		return;
+
 
 	lastX = xpos;
 	lastY = ypos;

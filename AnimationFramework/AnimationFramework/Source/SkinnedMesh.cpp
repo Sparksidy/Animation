@@ -495,7 +495,7 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 
 	ReadSkeleton(m_Scene->mRootNode, Identity);
 
-	ChainLink.clear();
+	//ChainLink.clear();
 
 	CreateSubChain();
 
@@ -544,14 +544,14 @@ void SkinnedMesh::CreateSubChain()
 
 }
 
-#define MAX_IK_TRIES		10
+#define MAX_IK_TRIES		5
 #define MIN_IK_THRESH		1.0f
 
 void SkinnedMesh:: ComputeCCD()
 {
 	//Target
 	Vector3f target = {0, 10, 10};
-
+	
 	//Variables
 	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector;
 	glm::vec3 crossResult;

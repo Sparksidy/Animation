@@ -27,19 +27,15 @@ void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	if (ImGuizmo::IsOver())
-	{
-		if (ImGuizmo::IsUsing())
-		{
-			
-		}
-	}
+	ImGuiIO & io = ImGui::GetIO();
 
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
 		camera.ProcessMouseMovement(xoffset, yoffset);
 	}
+
+	
 }
 
 void scroll_callback(GLFWwindow * window, double xoffset, double yoffset)

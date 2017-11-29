@@ -26,8 +26,7 @@ void TransformEditor::Update(glm::mat4 & matrix)
 
 	glm::mat4 const& view_matrix = camera.GetViewMatrix();
 	glm::mat4 const& projection_matrix = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
-	glm::mat4 modelMatrix = matrix;
-
+	
 	
 	float translation[3];
 	float rotation[3];
@@ -37,13 +36,18 @@ void TransformEditor::Update(glm::mat4 & matrix)
 	ImGui::InputFloat3("Rt", rotation, 3);
 	ImGui::InputFloat3("Sc", scale, 3);
 
+	//Updating the translate value
+	translate[0] = translation[0];
+	translate[1] = translation[1];
+	translate[2] = translation[2];
+
+
 	ImGuizmo::RecomposeMatrixFromComponents(translation, rotation, scale, &matrix[0][0]);
 
 	ImGuiIO & io = ImGui::GetIO();
 	ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
-	ImGuizmo::Manipulate(&view_matrix[0][0], &projection_matrix[0][0], _currentOperation, _currentMode, &modelMatrix[0][0]);
+	ImGuizmo::Manipulate(&view_matrix[0][0], &projection_matrix[0][0], _currentOperation, _currentMode, &matrix[0][0]);
 
-	
 }
 
 void TransformEditor::Reset()
