@@ -1,0 +1,159 @@
+//Target
+	glm::vec3 target = {0, 0, 0};
+
+	glm::mat4 m_model;
+	m_model = glm::translate(m_model, modelsPosition);
+	m_model = glm::rotate(m_model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	m_model = glm::rotate(m_model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	m_model = glm::rotate(m_model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
+
+	m_model = glm::scale(m_model, glm::vec3(0.06f, 0.06f, 0.06f));
+	target = glm::vec3(glm::inverse(m_model) * glm::vec4(target, 1.0));
+
+	
+
+
+	//Variables
+	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector;
+	glm::vec3 crossResult;
+	double cosAngle, turnDeg;
+	int link, Chainsize;
+
+	/*Matrix4f matrix = GetWorldSpace(0);
+	currEnd.x = matrix.m[0][3];
+	currEnd.y = matrix.m[1][3];
+	currEnd.z = matrix.m[2][3];
+	currEnd.x = currEnd.x - 10;
+	target = currEnd;*/
+
+	Chainsize = ChainLink.size() - 1;
+	link = 1;
+
+	do {
+
+		for (int link = 1; link < ChainLink.size(); link++)
+		{
+
+		
+		Matrix4f matrix = GetWorldSpace(0);
+		
+		//Position of the end effector in world space
+		
+		currEnd.x = matrix.m[0][3];
+		currEnd.y = matrix.m[1][3];
+		currEnd.z = matrix.m[2][3];
+
+		
+		//Get the Current jointPos in world Space
+		Matrix4f rootMatrix = GetWorldSpace(link);
+		
+		rootPos.x = rootMatrix.m[0][3];
+		rootPos.y = rootMatrix.m[1][3];
+		rootPos.z = rootMatrix.m[2][3];
+		aiMatrix4x4 CurrJointWorldTransform =ToAiMatrix(rootMatrix);
+
+
+		//Desired End effector position
+		desiredEnd.x = target.x;
+		desiredEnd.y = target.y;
+		desiredEnd.z = target.z;
+
+		//Check if you are already close enough
+		if (VectorSquaredDistance(currEnd, desiredEnd) > 1.0f)
+		{
+			//Create a vector to the current effector pos
+			curVector.x = currEnd.x - rootPos.x;
+			curVector.y = currEnd.y - rootPos.y;
+			curVector.z = currEnd.z - rootPos.z;
+
+			//Create the desired effector position vector
+			targetVector.x = target.x - rootPos.x;
+			targetVector.y = target.y - rootPos.y;
+			targetVector.z = target.z - rootPos.z;
+
+			//Normalize the vectors
+			targetVector = glm::normalize(targetVector);
+			curVector = glm::normalize(curVector);
+
+			//Dot product gives me the cosine of the angle
+			cosAngle = glm::dot(targetVector, curVector);
+
+			//If dot is 1.0 we don't need to do anything as it is 0 degrees
+			if (cosAngle < 0.99999f)
+			{
+			
+				//Calculate the by how much to rotate
+				turnDeg = acos((float)cosAngle);
+
+				//CLAMPING: CLamp if greater then 90 degrees or 0.5 Radians -CHANGE THIS LATER
+				//Constraints c  = JointConstraints[link];
+				//float toRad = c.max * (3.14 / 180);
+
+				//turnDeg = glm::clamp(turnDeg, -3.14 / 4, 3.14 / 4);
+					
+				
+				//Use the cross product to check which way to rotate
+				crossResult =  glm::cross(curVector, targetVector );
+				if (glm::length(crossResult) == 0.0f)
+				{
+					std::cout << "Wrong" << std::endl;
+				}
+				crossResult = glm::normalize(crossResult);
+				crossResult.x = crossResult.x * sin(turnDeg / 2);
+				crossResult.y = crossResult.y * sin(turnDeg / 2);
+				crossResult.z = crossResult.z * sin(turnDeg / 2);
+				
+				
+				//Get the axis to rotate in Local Space
+				//aiMatrix4x4 CurrJointLocalSpace = CurrJointWorldTransform.Inverse();
+				//aiVector3D CrossResultInLocalSpace = (aiMatrix3x3) CurrJointLocalSpace * aiVector3D(crossResult.x, crossResult.y, crossResult.z);
+
+				
+
+				//Calculating the new Rotation
+				aiQuaternion NewRotation(cos(turnDeg/2), crossResult.x, crossResult.y, crossResult.z);
+				NewRotation = NewRotation.Normalize();
+				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
+			
+
+				//ChainLink[link]->mTransformation =  ChainLink[link]->mTransformation * NewRotationMatrix;
+				
+				ChainLink[link]->mTransformation =  NewRotationMatrix * CurrJointWorldTransform;
+				//aiMatrix4x4 rot = CalculateRotationFromMatrix(ChainLink[link]->mTransformation);
+
+
+
+				}
+
+			//if (++link > ChainLink.size() - 1 )
+				//link = 1;
+
+			}
+
+		}
+		Matrix4f matrix = GetWorldSpace(0);
+
+		//Position of the end effector in world space
+		currEnd.x = matrix.m[0][3];
+		currEnd.y = matrix.m[1][3];
+		currEnd.z = matrix.m[2][3];
+
+		curVector.x = currEnd.x - rootPos.x;
+		curVector.y = currEnd.y - rootPos.y;
+		curVector.z = currEnd.z - rootPos.z;
+
+		//Create the desired effector position vector
+		targetVector.x = target.x - rootPos.x;
+		targetVector.y = target.y - rootPos.y;
+		targetVector.z = target.z - rootPos.z;
+
+		//Normalize the vectors
+		targetVector = glm::normalize(targetVector);
+		curVector = glm::normalize(curVector);
+
+	
+		float a = VectorSquaredDistance(currEnd, desiredEnd);
+		int an = 9;
+
+
+	} while (++tries < (MAX_IK_TRIES ) && VectorSquaredDistance(currEnd, desiredEnd) > MIN_IK_THRESH);
