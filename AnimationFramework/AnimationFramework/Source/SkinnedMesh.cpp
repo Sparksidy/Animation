@@ -11,7 +11,7 @@
 
 
 
-float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2);
+float VectorSquaredDistance(aiVector3D pos1, aiVector3D pos2);
 
 
 void SkinnedMesh::VertexBoneData::AddBoneData(unsigned int BoneID, float Weight)
@@ -35,6 +35,9 @@ SkinnedMesh::SkinnedMesh()
 	m_NumBones = 0;
 	m_Scene = NULL;
 	tries = 0;
+
+	
+
 
 }
 
@@ -90,20 +93,18 @@ void SkinnedMesh::SetMVP(Shader& shader)
 	//											   
 	//model = orientation;
 
-	glm::mat4 model, view, projection;
-	model = glm::translate(model, modelsPosition);
-	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
-	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
-	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
+	 glm::mat4 m_model, view, projection;
+	m_model = glm::translate(m_model, modelsPosition);
+	m_model = glm::rotate(m_model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	m_model = glm::rotate(m_model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	m_model = glm::rotate(m_model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
 	
-	
-
-	model = glm::scale(model, glm::vec3(0.06f, 0.06f, 0.06f));	// it's a bit too big for our scene, so scale it down
+	m_model = glm::scale(m_model, glm::vec3(0.06f, 0.06f, 0.06f));	// it's a bit too big for our scene, so scale it down
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 	view = camera.GetViewMatrix();
 
 	shader.use();
-	shader.setMat4("model", model);
+	shader.setMat4("model", m_model);
 	shader.setMat4("projection", projection);
 	shader.setMat4("view", view);
 
@@ -492,14 +493,12 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 
 	//IK
 
-	
-
 	ReadSkeleton(m_Scene->mRootNode, Identity);
 
 	//ChainLink.clear();
 
 	CreateSubChain();
-	
+	//CreateJointConstraints();
 	
 	if (!flag)
 	{
@@ -538,6 +537,7 @@ void SkinnedMesh::CreateSubChain()
 			{
 				
 				ChainLink.push_back(finger);
+
 			}
 			finger = finger->mParent;
 		}
@@ -547,115 +547,167 @@ void SkinnedMesh::CreateSubChain()
 
 }
 
-#define MAX_IK_TRIES		10
+void SkinnedMesh::CreateJointConstraints()
+{
+	for (int i = 0; i < ChainLink.size(); i++)
+	{
+		string name = ChainLink[i]->mName.data;
+
+		if (name == right_finger)
+		{
+			JointConstraints.push_back(Constraints(0, 0));
+		}
+		else if (name == right_Hand)
+		{
+			JointConstraints.push_back(Constraints(0, 30));
+		}
+		else if (name == right_Forearm)
+		{
+			JointConstraints.push_back(Constraints(0, 30));
+		}
+		else if (name == right_UpperArm)
+		{
+			JointConstraints.push_back(Constraints(0, 10));
+		}
+
+		else if (name == right_Clavicle)
+		{
+			JointConstraints.push_back(Constraints(0, 20));
+		}
+		else if (name == Neck)
+		{
+			JointConstraints.push_back(Constraints(0, 30));
+		}
+		else if (name == Spine3)
+		{
+			JointConstraints.push_back(Constraints(0, 15));
+		}
+		else if (name == Spine2)
+		{
+			JointConstraints.push_back(Constraints(0, 15));
+		}
+		else if (name == Spine1)
+		{
+			JointConstraints.push_back(Constraints(0, 15));
+		}
+		else if (name == Spine)
+		{
+			JointConstraints.push_back(Constraints(0, 15));
+		}
+		else if (name == Pelvis)
+		{
+			JointConstraints.push_back(Constraints(0, 10));
+		}
+		else if (name == Root)
+		{
+			JointConstraints.push_back(Constraints(0, 0));
+
+		}
+
+	}
+
+}
+
+#define MAX_IK_TRIES		1
 #define MIN_IK_THRESH		1.0f
 
 void SkinnedMesh:: ComputeCCD()
 { 
-	//Target
-	Vector3f target = {0, 10, 10};
+	//Get the target point in World Space
+	glm::vec3 target = {0, 10, 10};
+	glm::vec3 model_position = this->GetModelsPosition();
 	
+	glm::mat4 model;
+	model = glm::translate(model, model_position);
+	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
+	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
+	model = glm::scale(model, glm::vec3(0.06f, 0.06f, 0.06f));
 
-	//Variables
-	glm::vec3 rootPos, currEnd, desiredEnd, targetVector, curVector;
-	glm::vec3 crossResult;
-	double cosAngle, turnDeg;
-	int link, Chainsize;
+	target = glm::vec3(glm::inverse(model) * glm::vec4(target,1.0));
 
+	glm::vec3  TargetVector, jointToEEVector, crossResult;
+	aiVector3D jointPos, EEPos, targetPos;
+	aiMatrix4x4 jointPosWorldSpace, EEWorldSpace ;
+	double cosAngle;
+	int link = 1;
 
-	Chainsize = ChainLink.size() - 1;
-	link = 1;
+	
+	do
+	{
+		// EE IN WORLD SPACE
+		EEWorldSpace = GetWorldSpace(0);
+		EEPos.x = EEWorldSpace[0][3];
+		EEPos.y = EEWorldSpace[1][3];
+		EEPos.z = EEWorldSpace[2][3];
 
-	do {
-		//Position of the end effector in world space
-		aiMatrix4x4 matrix = GetWorldSpace(0);
-		currEnd.x = matrix[0][3];
-		currEnd.y = matrix[1][3];
-		currEnd.z = matrix[2][3];
+		// JOINT POS IN WORLD SPACE
+		jointPosWorldSpace = GetWorldSpace(link);
+		jointPos.x = jointPosWorldSpace[0][3];
+		jointPos.y = jointPosWorldSpace[1][3];
+		jointPos.z = jointPosWorldSpace[2][3];
 
+		//TARGET POS IN WORLD SPACE
+		targetPos.x = target.x;
+		targetPos.y = target.y;
+		targetPos.z = target.z;
 
-		//Get the Current jointPos in world Space
-		aiMatrix4x4 rootMatrix = GetWorldSpace(link);
-		rootPos.x = rootMatrix[0][3];
-		rootPos.y = rootMatrix[1][3];
-		rootPos.z = rootMatrix[2][3];
-		aiMatrix4x4 CurrJointWorldTransform = rootMatrix;
-
-
-		//Desired End effector position
-		desiredEnd.x = target.x;
-		desiredEnd.y = target.y;
-		desiredEnd.z = target.z;
-
-		//Check if you are already close enough
-		if (VectorSquaredDistance(currEnd, desiredEnd) > 1.0f)
+		if (VectorSquaredDistance(EEPos, targetPos) > 1.0)
 		{
-			//Create a vector to the current effector pos
-			curVector.x = currEnd.x - rootPos.x;
-			curVector.y = currEnd.y - rootPos.y;
-			curVector.z = currEnd.z - rootPos.z;
+			// EE TO TARGET VECTOR
+			TargetVector.x = targetPos.x - EEPos.x;
+			TargetVector.y = targetPos.y - EEPos.y;
+			TargetVector.z = targetPos.z - EEPos.z;
 
-			//Create the desired effector position vector
-			targetVector.x = target.x - rootPos.x;
-			targetVector.y = target.y - rootPos.y;
-			targetVector.z = target.z - rootPos.z;
+			// JOINT TO EE VECTOR
+			jointToEEVector.x = EEPos.x - jointPos.x;
+			jointToEEVector.y = EEPos.y - jointPos.y;
+			jointToEEVector.z = EEPos.z - jointPos.z;
 
-			//Normalize the vectors
-			targetVector = glm::normalize(targetVector);
-			curVector = glm::normalize(curVector);
 
-			//Dot product gives me the cosine of the angle
-			cosAngle = glm::dot(targetVector, curVector);
+			TargetVector = glm::normalize(TargetVector);
+			jointToEEVector = glm::normalize(jointToEEVector);
 
-			//If dot is 1.0 we don't need to do anything as it is 0 degrees
-			if (cosAngle < 0.99999f)
+
+			// GET THE DOT PRODUCT BETWEEN TWO
+			cosAngle = glm::dot(TargetVector, jointToEEVector);
+
+			//THEN ROTATE IT
+			if (cosAngle < 0.9899)
 			{
 			
-				//Calculate the by how much to rotate
-				turnDeg = acos((float)cosAngle);
-
-				//CLAMPING: CLamp if greater then 90 degrees or 0.5 Radians -CHANGE THIS LATER
-				if (turnDeg > 0.2f)
-					turnDeg = 0.2f;
-
-				//Use the cross product to check which way to rotate
-				crossResult =  glm::cross(targetVector, curVector);
+				//CROSS PRODUCT TO GET AXIS
+				crossResult = glm::cross(TargetVector, jointToEEVector);
 				crossResult = glm::normalize(crossResult);
-				crossResult.x = crossResult.x * sin(turnDeg / 2) ;
-				crossResult.y = crossResult.y * sin(turnDeg / 2);
-				crossResult.z = crossResult.z * sin(turnDeg / 2);
-			
-				//Get the axis to rotate in Local Space
-				aiMatrix4x4 CurrJointLocalSpace = CurrJointWorldTransform.Inverse();
-				aiVector3D CrossResultInLocalSpace = (aiMatrix3x3) CurrJointLocalSpace * aiVector3D(crossResult.x, crossResult.y, crossResult.z);
 
-				//Calculating the new Rotation
-				aiQuaternion NewRotation(cos(turnDeg/2), CrossResultInLocalSpace.x, CrossResultInLocalSpace.y, CrossResultInLocalSpace.z);
-				NewRotation = NewRotation.Normalize();
-				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
-				
-				
-				ChainLink[link]->mTransformation =  ChainLink[link]->mTransformation * NewRotationMatrix;
-				
-			
-				//TODO: Degree Of Freedom Restrictions
+
+
+
 
 			}
 
-			if (++link > ChainLink.size() - 1 )
-				link = 1;
 
 		}
 
-	} while (tries++ < MAX_IK_TRIES && VectorSquaredDistance(currEnd, desiredEnd) > MIN_IK_THRESH);
+
+
+
+		
+
+		
+	} while (VectorSquaredDistance(EEPos, targetPos));
+
+	
+
+
+	
 
 }
 
 aiMatrix4x4 SkinnedMesh::GetWorldSpace(int index)
 {
 	aiMatrix4x4 WorldMatrix;
-
-	for (int i = index; i <= ChainLink.size() - 1; i++)
+	for (int i = index; i < ChainLink.size() ; i++)
 	{
 		WorldMatrix = WorldMatrix * ChainLink[i]->mTransformation ;
 	}
@@ -663,6 +715,7 @@ aiMatrix4x4 SkinnedMesh::GetWorldSpace(int index)
 	return WorldMatrix;
 }
 
+//WASTE FUNCTIONS
 void SkinnedMesh::ReadChainHiearchy(Matrix4f ParentGlobalTransform, int link)
 {
 
@@ -683,6 +736,7 @@ void SkinnedMesh::ReadChainHiearchy(Matrix4f ParentGlobalTransform, int link)
 
 }
 
+//WASTE FUNCTIONS
 void SkinnedMesh::ReadSkeletonCylinder()
 {
 	aiNode* currNode = m_Scene->mRootNode;
@@ -815,9 +869,11 @@ void SkinnedMesh::ReadSkeleton(aiNode * pNode, const Matrix4f & ParentTransform)
 	}
 }
 
-float VectorSquaredDistance(glm::vec3 pos1, glm::vec3 pos2)
+
+float VectorSquaredDistance(aiVector3D pos1, aiVector3D pos2)
 {
-	return pow((pos2.x - pos1.x), 2) + pow((pos2.y - pos1.y), 2) + pow((pos2.z - pos1.z), 2);
+	float a = sqrt(pow((pos2.x - pos1.x), 2) + pow((pos2.y - pos1.y), 2) + pow((pos2.z - pos1.z), 2));
+	return a;
 }
 
 void SkinnedMesh::CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim)

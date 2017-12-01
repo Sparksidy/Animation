@@ -64,8 +64,8 @@ int main()
 	
 	//DEBUG
 	TransformEditor transformEditor;
-	glm::mat4 model;
-	model = glm::translate(model, glm::vec3(0, 10, 10));
+	glm::mat4 model1;
+	model1 = glm::translate(model1, glm::vec3(0, 10, 10));
 	
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
@@ -111,7 +111,7 @@ int main()
 
 		spline.UpdateMVP(curveShader);
 
-		transformEditor.Update(model);
+		transformEditor.Update(model1);
 
 		if (drawskeleton)
 		{

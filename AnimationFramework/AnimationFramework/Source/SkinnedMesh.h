@@ -146,17 +146,39 @@ private:
 		aiVector3D CalculateTranslationFromMatrix(aiMatrix4x4 matrix);
 		aiMatrix4x4 CalculateRotationFromMatrix(aiMatrix4x4 matrix);
 		void ReadSkeleton(aiNode* pNode, const Matrix4f & ParentTransform);
+		void CreateJointConstraints();
 
 		//Number of IK Tries
 		int tries;
 		
-		string right_finger = "Bip01_R_Finger1";
+		string right_finger     = "Bip01_R_Finger1";
+		string right_Hand	    = "Bip01_R_Hand";
+		string right_Forearm    = "Bip01_R_Forearm";
+		string right_UpperArm   = "Bip01_R_UpperArm";
+		string right_Clavicle   = "Bip01_R_Clavicle";
+		string Neck				= "Bip01_Neck";
+		string Spine3			= "Bip01_Spine3";
+		string Spine2			= "Bip01_Spine2";
+		string Spine1			= "Bip01_Spine1";
+		string Spine			= "Bip01_Spine";
+		string Pelvis			= "Bip01_Pelvis";
+		string Root				= "Scene_Root";
+
+
+		//string 
 		std::vector<aiNode*> ChainLink;
+		struct Constraints {
+			float min;
+			float max;
+			Constraints(float x, float y) { min = x; max = y; }
+		};
+		std::vector<Constraints> JointConstraints;
 		aiNode* finger = nullptr;
 
 		std::map<string, unsigned int> m_BoneMapping;
 		vector<BoneInfo> m_BoneInfo;
 		Matrix4f m_GlobalInverseTransform;
+		
 		
 	//IK
 	private:

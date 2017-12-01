@@ -29,8 +29,9 @@ void mouse_callback(GLFWwindow * window, double xpos, double ypos)
 
 	ImGuiIO & io = ImGui::GetIO();
 
-
-	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+	
+	
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)//glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
 		camera.ProcessMouseMovement(xoffset, yoffset);
 	}
