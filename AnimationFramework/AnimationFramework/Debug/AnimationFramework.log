@@ -2,10 +2,9 @@
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(70): warning C4101: 'infoLog': unreferenced local variable
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\shader.h(69): warning C4101: 'success': unreferenced local variable
 c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(191): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(486): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(489): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(552): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(710): warning C4018: '<': signed/unsigned mismatch
-c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(722): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(687): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(696): warning C4018: '>': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(711): warning C4018: '<': signed/unsigned mismatch
+c:\users\siddharth.gupta\desktop\animation\animation\animationframework\animationframework\source\skinnedmesh.cpp(723): warning C4018: '<': signed/unsigned mismatch
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.exe
   AnimationFramework.vcxproj -> C:\Users\siddharth.gupta\Desktop\Animation\Animation\AnimationFramework\AnimationFramework\x64\Debug\AnimationFramework.pdb (Partial PDB)

@@ -70,33 +70,21 @@ int main()
 	ImGui_ImplGlfwGL3_Init(GET_WINDOW(window), true);
 	bool show_test_window = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+	
 	bool drawskeleton = false;
 
-	//IK
-	glm::vec3 targetPoint = { 0,10,20 };
-	CyclicCoordinateDescend ccd;
-	
-	//IK
-	
 	float startTime = GetTickCount();
 	while (!glfwWindowShouldClose(GET_WINDOW(window)))
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
 		ImGuizmo::BeginFrame();
 
-		ImGuiIO io = ImGui::GetIO();
-		ImVec2 mouse = io.MousePos;
-		std::cout << "Mouse: " << mouse.x << " " << mouse.y << std::endl;
-		
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		float RunningTime = (float)((double)GetTickCount() - (double)startTime)/ 1000.0f;
-
-		
+		float RunningTime = (float)((double)GetTickCount() - (double)startTime) / 1000.0f;
 		cb.processInput(GET_WINDOW(window));
-	
-		
 		glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

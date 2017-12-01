@@ -93,7 +93,7 @@ void SkinnedMesh::SetMVP(Shader& shader)
 	//											   
 	//model = orientation;
 
-	 glm::mat4 m_model, view, projection;
+	glm::mat4 m_model, view, projection;
 	m_model = glm::translate(m_model, modelsPosition);
 	m_model = glm::rotate(m_model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	m_model = glm::rotate(m_model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
@@ -417,11 +417,6 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTime,  aiNode * pNode, const 
 
 	string Nodename(pNode->mName.data);
 
-	if (Nodename == right_finger)
-	{
-		finger = pNode;
-	}
-
 	const aiAnimation* pAnim = m_Scene->mAnimations[0];
 	
 	Matrix4f NodeTransformation(pNode->mTransformation);
@@ -482,23 +477,23 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 	Identity.InitIdentity();
 
 	
-	//Calculate the animation time
-	float TicksPerSecond = m_Scene->mAnimations[0]->mTicksPerSecond > 0 ? m_Scene->mAnimations[0]->mTicksPerSecond  : 200.0f * a ;
-	t += 0.16f * TicksPerSecond;
-	//float TimeInTicks = timeInSeconds * TicksPerSecond;
-	t = fmod(t, m_Scene->mAnimations[0]->mDuration);
+	////Calculate the animation time
+	//float TicksPerSecond = m_Scene->mAnimations[0]->mTicksPerSecond > 0 ? m_Scene->mAnimations[0]->mTicksPerSecond  : 200.0f * a ;
+	//t += 0.16f * TicksPerSecond;
+	////float TimeInTicks = timeInSeconds * TicksPerSecond;
+	//t = fmod(t, m_Scene->mAnimations[0]->mDuration);
 
 	//Traverse the node hierarchy and update the final bone transformation according to the animation time
-	//ReadNodeHierarchy(0, m_Scene->mRootNode, Identity);
+	ReadNodeHierarchy(0, m_Scene->mRootNode, Identity);
 
 	//IK
-
-	ReadSkeleton(m_Scene->mRootNode, Identity);
+	Matrix4f Identity1;
+	Identity1.InitIdentity();
+	ReadSkeleton(m_Scene->mRootNode, Identity1);
 
 	//ChainLink.clear();
 
 	CreateSubChain();
-	//CreateJointConstraints();
 	
 	if (!flag)
 	{
@@ -507,12 +502,11 @@ void SkinnedMesh::BoneTransform(float timeInSeconds, vector<Matrix4f>& Transform
 		ComputeCCD();
 	}
 
-	ReadSkeleton(m_Scene->mRootNode, Identity);
-
-	
+	Matrix4f Identity2;
+	Identity2.InitIdentity();
+	ReadSkeleton(m_Scene->mRootNode, Identity2);
 
 	//IK
-
 
 	Transforms.resize(m_NumBones);
 	BonePosition.resize(m_NumBones);
@@ -548,7 +542,7 @@ void SkinnedMesh::CreateSubChain()
 }
 
 void SkinnedMesh::CreateJointConstraints()
-{
+{/*
 	for (int i = 0; i < ChainLink.size(); i++)
 	{
 		string name = ChainLink[i]->mName.data;
@@ -604,11 +598,11 @@ void SkinnedMesh::CreateJointConstraints()
 
 		}
 
-	}
+	}*/
 
 }
 
-#define MAX_IK_TRIES		1
+#define MAX_IK_TRIES		5
 #define MIN_IK_THRESH		1.0f
 
 void SkinnedMesh:: ComputeCCD()
@@ -618,7 +612,7 @@ void SkinnedMesh:: ComputeCCD()
 	glm::vec3 model_position = this->GetModelsPosition();
 	
 	glm::mat4 model;
-	model = glm::translate(model, model_position);
+	model = glm::translate(model,glm::vec3(0,0,0));
 	model = glm::rotate(model, glm::radians(90.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(1.0, 0.0, 0.0)));
 	model = glm::rotate(model, glm::radians(180.0f), glm::normalize(glm::vec3(0.0, 1.0, 0.0)));
@@ -626,10 +620,10 @@ void SkinnedMesh:: ComputeCCD()
 
 	target = glm::vec3(glm::inverse(model) * glm::vec4(target,1.0));
 
-	glm::vec3  TargetVector, jointToEEVector, crossResult;
+	glm::vec3  jointToTargetVector, jointToEEVector, crossResult;
 	aiVector3D jointPos, EEPos, targetPos;
 	aiMatrix4x4 jointPosWorldSpace, EEWorldSpace ;
-	double cosAngle;
+	double dotProduct, angle, dist;
 	int link = 1;
 
 	
@@ -652,12 +646,12 @@ void SkinnedMesh:: ComputeCCD()
 		targetPos.y = target.y;
 		targetPos.z = target.z;
 
-		if (VectorSquaredDistance(EEPos, targetPos) > 1.0)
+		if (VectorSquaredDistance(EEPos, targetPos) > 1.0f)
 		{
 			// EE TO TARGET VECTOR
-			TargetVector.x = targetPos.x - EEPos.x;
-			TargetVector.y = targetPos.y - EEPos.y;
-			TargetVector.z = targetPos.z - EEPos.z;
+			jointToTargetVector.x = targetPos.x - jointPos.x;
+			jointToTargetVector.y = targetPos.y - jointPos.y;
+			jointToTargetVector.z = targetPos.z - jointPos.z;
 
 			// JOINT TO EE VECTOR
 			jointToEEVector.x = EEPos.x - jointPos.x;
@@ -665,43 +659,50 @@ void SkinnedMesh:: ComputeCCD()
 			jointToEEVector.z = EEPos.z - jointPos.z;
 
 
-			TargetVector = glm::normalize(TargetVector);
+			jointToTargetVector = glm::normalize(jointToTargetVector);
 			jointToEEVector = glm::normalize(jointToEEVector);
 
 
 			// GET THE DOT PRODUCT BETWEEN TWO
-			cosAngle = glm::dot(TargetVector, jointToEEVector);
+			dotProduct = glm::dot(jointToTargetVector, jointToEEVector);
 
 			//THEN ROTATE IT
-			if (cosAngle < 0.9899)
+			if (dotProduct < 0.9999)
 			{
+				angle = acos((float)dotProduct);
+
+				//CLAMPING BETWEEN -45 DEG TO 45 DEG
+				angle = glm::clamp(angle, -3.14 / 4, 3.14 / 4);
 			
 				//CROSS PRODUCT TO GET AXIS
-				crossResult = glm::cross(TargetVector, jointToEEVector);
+				crossResult = glm::cross(jointToTargetVector, jointToEEVector);
 				crossResult = glm::normalize(crossResult);
 
+				//GETTING CROSS PRODUCT IN LOCAL SPACE
+				aiMatrix4x4 CurrJointLocalSpace = jointPosWorldSpace.Inverse();
+				aiVector3D CrossResultInLocalSpace = (aiMatrix3x3) CurrJointLocalSpace * aiVector3D(crossResult.x, crossResult.y, crossResult.z);
 
+				
+				//NEW ROTATION AROUND LOCAL AXIS
+				aiQuaternion NewRotation(cos(angle/2), CrossResultInLocalSpace.x * sin(angle/2), CrossResultInLocalSpace.y * sin(angle/2), CrossResultInLocalSpace.z * sin(angle/2));
+				NewRotation = NewRotation.Normalize();
+				aiMatrix4x4 NewRotationMatrix = (aiMatrix4x4)NewRotation.GetMatrix();
 
-
+				//APPLYING ROTATION
+				ChainLink[link]->mTransformation =  ChainLink[link]->mTransformation * NewRotationMatrix;
 
 			}
 
+			if (++link > ChainLink.size() - 1)
+				link = 1;
 
 		}
 
-
-
-
+		 dist = VectorSquaredDistance(EEPos, targetPos);
 		
-
-		
-	} while (VectorSquaredDistance(EEPos, targetPos));
+	} while (++tries < MAX_IK_TRIES  && dist > MIN_IK_THRESH);
 
 	
-
-
-	
-
 }
 
 aiMatrix4x4 SkinnedMesh::GetWorldSpace(int index)

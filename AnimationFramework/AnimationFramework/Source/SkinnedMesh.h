@@ -152,7 +152,7 @@ private:
 		int tries;
 		
 		string right_finger     = "Bip01_R_Finger1";
-		string right_Hand	    = "Bip01_R_Hand";
+		/*string right_Hand	    = "Bip01_R_Hand";
 		string right_Forearm    = "Bip01_R_Forearm";
 		string right_UpperArm   = "Bip01_R_UpperArm";
 		string right_Clavicle   = "Bip01_R_Clavicle";
@@ -162,7 +162,7 @@ private:
 		string Spine1			= "Bip01_Spine1";
 		string Spine			= "Bip01_Spine";
 		string Pelvis			= "Bip01_Pelvis";
-		string Root				= "Scene_Root";
+		string Root				= "Scene_Root";*/
 
 
 		//string 
